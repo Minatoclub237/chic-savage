@@ -1,11 +1,28 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" class="is-loading">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#020202" />
+  <!-- écran de chargement : styles critiques en ligne pour qu'il s'affiche avant tout le reste -->
+  <style>
+    html.is-loading { overflow: hidden; background: #020202; }
+    .loader { position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center; justify-items: center; gap: 30px; background: #020202; animation: loader-failsafe .6s 8s forwards; }
+    .loader img { width: min(340px, 68vw); height: auto; opacity: 0; -webkit-mask-image: radial-gradient(circle, #000 64%, transparent 76%); mask-image: radial-gradient(circle, #000 64%, transparent 76%); animation: loader-logo 1.1s .1s cubic-bezier(.2, .7, .2, 1) forwards; }
+    .loader-bar { width: min(220px, 50vw); height: 2px; border-radius: 2px; background: rgb(214 161 76 / .18); overflow: hidden; }
+    .loader-bar i { display: block; height: 100%; background: linear-gradient(90deg, #8d5e1f, #f6dfa4, #d6a14c); transform: scaleX(0); transform-origin: left; animation: loader-bar 1.8s cubic-bezier(.6, .1, .2, 1) forwards; }
+    @keyframes loader-logo { from { opacity: 0; transform: scale(.94); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes loader-bar { to { transform: scaleX(.85); } }
+    @keyframes loader-failsafe { to { opacity: 0; visibility: hidden; } }
+  </style>
+  <noscript><style>.loader { display: none; } html.is-loading { overflow: auto; }</style></noscript>
+  <link rel="stylesheet" href="/src/style.css" />
   <title>Chic Savage Beauty — Blanchiment dentaire, strass &amp; lipocavitation à Fort-de-France</title>
   <meta name="description" content="Institut de beauté à Fort-de-France (Martinique) : blanchiment dentaire dès 75 €, strass dentaires Swarovski, lipocavitation et radiofréquence. Uniquement sur rendez-vous au 0696 31 73 56." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23e39a72'/%3E%3Ctext x='16' y='21' font-family='Georgia' font-style='italic' font-size='15' fill='white' text-anchor='middle'%3Ecs%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preload" as="image" href="/img/logo-cs.webp" />
   <link rel="preload" as="image" href="/img/hero.webp" />
   <script type="application/ld+json">
   {
@@ -13,16 +30,26 @@
     "@type": "BeautySalon",
     "name": "Chic Savage Beauty",
     "slogan": "Votre éclat, notre art",
+    "legalName": "Nicole Osel (Chic Savage Beauty)",
+    "logo": "/img/logo-cs.webp",
     "telephone": "+596 696 31 73 56",
-    "address": { "@type": "PostalAddress", "streetAddress": "Rue Pierre Semar", "postalCode": "97200", "addressLocality": "Fort-de-France", "addressCountry": "MQ" },
+    "address": { "@type": "PostalAddress", "streetAddress": "39 rue Pierre Semard", "postalCode": "97200", "addressLocality": "Fort-de-France", "addressCountry": "MQ" },
     "geo": { "@type": "GeoCoordinates", "latitude": 14.6103862, "longitude": -61.070878 },
-    "openingHoursSpecification": [{ "@type": "OpeningHoursSpecification", "dayOfWeek": "Wednesday", "opens": "09:00", "closes": "16:00" }],
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Thursday", "Friday", "Saturday"], "opens": "09:00", "closes": "18:00" },
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": "Wednesday", "opens": "09:00", "closes": "16:00" }
+    ],
     "sameAs": ["https://www.instagram.com/chicsavagebeauty/", "https://maps.google.com/?cid=2605567330554344886"],
     "priceRange": "50 € – 900 €"
   }
   </script>
 </head>
 <body>
+  <div class="loader" id="loader" aria-hidden="true">
+    <img src="/img/logo-cs.webp" width="640" height="640" alt="" />
+    <div class="loader-bar"><i></i></div>
+  </div>
+
   <!-- HERO -->
   <header class="hero" id="top">
     <nav class="nav">
@@ -44,7 +71,7 @@
     </div>
 
     <h1 class="hero-word" aria-label="Chic Savage Beauty — institut de beauté à Fort-de-France"><span>CHIC SAVAGE</span></h1>
-    <img class="hero-model" src="/img/hero.webp" width="1100" height="1650" alt="Femme au sourire éclatant" fetchpriority="high" />
+    <img class="hero-model" src="/img/hero.webp" width="1300" height="1868" alt="Mannequin au chignon et au maquillage glamour" fetchpriority="high" />
 
     <div class="stat stat-left">
       <span class="stat-ico" aria-hidden="true">↗</span>
@@ -202,7 +229,7 @@
           <details><summary>Qu’est-ce que la lipocavitation&nbsp;?<i></i></summary><p>Une technique qui utilise des ultrasons pour détruire les cellules graisseuses, afin de réduire les amas graisseux et d’affiner la silhouette&nbsp;: perte de centimètres, peau plus lisse.</p></details>
           <details><summary>Pourquoi associer lipocavitation et radiofréquence&nbsp;?<i></i></summary><p>Associées, ces deux techniques affinent, raffermissent et tonifient le corps&nbsp;: la lipocavitation détruit les cellules graisseuses, tandis que la radiofréquence stimule la production de collagène et améliore la fermeté de la peau.</p></details>
           <details><summary>Combien de séances faut-il prévoir&nbsp;?<i></i></summary><p>Les résultats sont visibles dès les premières séances. Pour un résultat durable, les forfaits de 10&nbsp;séances (dès 600&nbsp;€) sont la formule idéale. Vous pouvez commencer par une séance découverte à 50&nbsp;€.</p></details>
-          <details><summary>Où se trouve l’institut&nbsp;?<i></i></summary><p>Rue Pierre Semar, 97200 Fort-de-France, Martinique. <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Chic%20savage%20beauty%2C%20Rue%20Pierre%20Semar%2C%2097200%20Fort-de-France" target="_blank" rel="noopener">Voir l’itinéraire →</a></p></details>
+          <details><summary>Où se trouve l’institut et quels sont vos horaires&nbsp;?<i></i></summary><p>39 rue Pierre Semard, 97200 Fort-de-France, Martinique. Ouvert du lundi au samedi de 9&nbsp;h à 18&nbsp;h (le mercredi jusqu’à 16&nbsp;h), fermé le dimanche. <a href="https://www.google.com/maps/dir/?api=1&amp;destination=14.6103862,-61.070878" target="_blank" rel="noopener">Voir l’itinéraire →</a></p></details>
         </div>
       </div>
     </section>
@@ -222,24 +249,89 @@
 
   <!-- FOOTER -->
   <footer class="foot" id="contact">
-    <div class="wrap foot-top">
-      <div class="news">
-        <img class="foot-logo" src="/img/logo.webp" width="120" height="120" alt="Logo Chic Savage Beauty" loading="lazy" />
-        <h3>Prenez soin de vous et révélez<br />votre beauté.</h3>
-        <a class="field" href="tel:+596696317356"><span>0696 31 73 56</span><b>Appeler</b></a>
+    <div class="wrap foot-cta">
+      <div>
+        <span class="foot-kicker">Votre éclat, notre art</span>
+        <h3>Prenez soin de vous et révélez votre beauté.</h3>
       </div>
-      <nav><h4>Navigation</h4><a href="#top">Accueil</a><a href="#about">À propos</a><a href="#services">Nos soins</a><a href="#pricing">Tarifs</a><a href="#faq">FAQ</a></nav>
-      <nav><h4>Nos soins</h4><a href="#services">Blanchiment dentaire</a><a href="#services">Strass dentaires</a><a href="#services">Lipocavitation</a><a href="#services">Radiofréquence</a></nav>
-      <div><h4>Infos pratiques</h4><p>Rue Pierre Semar<br />97200 Fort-de-France, Martinique</p><p>Mercredi&nbsp;: 9&nbsp;h – 16&nbsp;h</p><p>Uniquement sur rendez-vous</p><p><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Chic%20savage%20beauty%2C%20Rue%20Pierre%20Semar%2C%2097200%20Fort-de-France" target="_blank" rel="noopener">Itinéraire →</a></p><p><a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener">Instagram @chicsavagebeauty</a></p></div>
+      <div class="foot-cta-btns">
+        <a class="btn" href="tel:+596696317356">Appeler le 0696 31 73 56 <span class="btn-ico">→</span></a>
+        <a class="btn btn-ghost" href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener">Écrire sur Instagram <span class="btn-ico">↗</span></a>
+      </div>
     </div>
+
+    <div class="wrap foot-top">
+      <div class="foot-brand">
+        <a href="#top" class="foot-logo-link" aria-label="Chic Savage Beauty — revenir à l’accueil"><img class="foot-logo" src="/img/logo-cs.webp" width="132" height="132" alt="Logo Chic Savage Beauty" loading="lazy" /></a>
+        <p>Institut de beauté à Fort-de-France&nbsp;: blanchiment dentaire, strass Swarovski, lipocavitation et radiofréquence, uniquement sur rendez-vous.</p>
+        <div class="socials">
+          <a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener" aria-label="Instagram @chicsavagebeauty"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"/></svg></a>
+          <a href="https://maps.google.com/?cid=2605567330554344886" target="_blank" rel="noopener" aria-label="Chic Savage Beauty sur Google Maps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11Z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.3" fill="none" stroke="currentColor" stroke-width="1.7"/></svg></a>
+          <a href="tel:+596696317356" aria-label="Appeler le 0696 31 73 56"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5 9 3.9l1.2 4-1.9 1.5a11 11 0 0 0 6.3 6.3l1.5-1.9 4 1.2.4 2.4c.1.9-.6 1.6-1.5 1.6C10.4 19 5 13.6 5 5c0-.9.7-1.6 1.6-1.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+      <nav aria-label="Navigation du pied de page"><h4>Navigation</h4><a href="#top">Accueil</a><a href="#about">À propos</a><a href="#services">Nos soins</a><a href="#pricing">Tarifs</a><a href="#gallery">Réalisations</a><a href="#faq">FAQ</a></nav>
+      <nav aria-label="Nos soins"><h4>Nos soins</h4><a href="#services">Blanchiment dentaire</a><a href="#services">Strass &amp; design dentaire</a><a href="#services">Lipocavitation</a><a href="#services">Radiofréquence</a><a href="#pricing">Séance découverte</a></nav>
+      <div>
+        <h4>Horaires <span class="open-now" hidden></span></h4>
+        <ul class="hours">
+          <li data-day="1"><span>Lundi</span><span>9 h – 18 h</span></li>
+          <li data-day="2"><span>Mardi</span><span>9 h – 18 h</span></li>
+          <li data-day="3"><span>Mercredi</span><span>9 h – 16 h</span></li>
+          <li data-day="4"><span>Jeudi</span><span>9 h – 18 h</span></li>
+          <li data-day="5"><span>Vendredi</span><span>9 h – 18 h</span></li>
+          <li data-day="6"><span>Samedi</span><span>9 h – 18 h</span></li>
+          <li data-day="0"><span>Dimanche</span><span>Fermé</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <address>39 rue Pierre Semard<br />97200 Fort-de-France<br />Martinique</address>
+        <a href="tel:+596696317356">0696 31 73 56</a>
+        <a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener">@chicsavagebeauty</a>
+        <a href="https://www.google.com/maps/dir/?api=1&amp;destination=14.6103862,-61.070878" target="_blank" rel="noopener">Itinéraire →</a>
+        <p class="foot-note">Uniquement sur rendez-vous · acompte obligatoire</p>
+      </div>
+    </div>
+
     <div class="foot-word" aria-hidden="true">CHIC SAVAGE</div>
-    <div class="wrap foot-bottom"><span>© 2026 <b>CHIC SAVAGE BEAUTY</b> · Votre éclat, notre art</span><span>Fort-de-France, Martinique</span></div>
+
+    <div class="wrap foot-bottom">
+      <span>© 2026 Chic Savage Beauty · Nicole Osel, EI · SIRET 105 743 835 00016</span>
+      <span class="foot-legal"><button type="button" data-dialog="legal">Mentions légales</button><button type="button" data-dialog="privacy">Confidentialité</button><a href="#top">Haut de page ↑</a></span>
+    </div>
   </footer>
+
+  <dialog class="legal" id="legal" aria-labelledby="legal-title">
+    <button class="legal-close" type="button" aria-label="Fermer">×</button>
+    <h2 id="legal-title">Mentions légales</h2>
+    <h3>Éditeur du site</h3>
+    <p>Nicole Vanessa OSEL, entrepreneur individuel, exerçant sous le nom commercial <b>Chic Savage Beauty</b>.<br />39 rue Pierre Semard, 97200 Fort-de-France, Martinique.<br />SIREN 105 743 835 · SIRET 105 743 835 00016 · Code APE 96.02B (soins de beauté).<br />Téléphone&nbsp;: <a href="tel:+596696317356">0696 31 73 56</a></p>
+    <h3>Directrice de la publication</h3>
+    <p>Nicole Vanessa OSEL.</p>
+    <h3>Hébergement</h3>
+    <p>Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — vercel.com.</p>
+    <h3>Propriété intellectuelle</h3>
+    <p>Le logo, les textes et les photos de réalisations sont la propriété de Chic Savage Beauty. Les photos d’illustration proviennent de Pexels (licence Pexels). Toute reproduction sans autorisation est interdite.</p>
+    <h3>Nature des soins</h3>
+    <p>Les prestations proposées sont des soins esthétiques de bien-être, non médicaux, qui ne remplacent pas l’avis d’un professionnel de santé. Les résultats peuvent varier d’une personne à l’autre.</p>
+  </dialog>
+
+  <dialog class="legal" id="privacy" aria-labelledby="privacy-title">
+    <button class="legal-close" type="button" aria-label="Fermer">×</button>
+    <h2 id="privacy-title">Politique de confidentialité</h2>
+    <h3>Données collectées</h3>
+    <p>Ce site ne comporte aucun formulaire et ne dépose aucun cookie de mesure d’audience ou publicitaire. Les informations que vous transmettez pour réserver (par téléphone ou sur Instagram) servent uniquement à la gestion de vos rendez-vous.</p>
+    <h3>Liens externes</h3>
+    <p>Les liens vers Instagram et Google Maps vous dirigent vers des services tiers, soumis à leurs propres politiques de confidentialité.</p>
+    <h3>Vos droits</h3>
+    <p>Conformément au RGPD, vous pouvez demander l’accès, la rectification ou la suppression de vos données en appelant le 0696&nbsp;31&nbsp;73&nbsp;56 ou par courrier au 39 rue Pierre Semard, 97200 Fort-de-France. Vous pouvez également saisir la CNIL (cnil.fr).</p>
+  </dialog>
 
   <!-- barre d'action mobile -->
   <nav class="mbar" aria-label="Actions rapides">
     <a href="tel:+596696317356">Appeler</a>
-    <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Chic%20savage%20beauty%2C%20Rue%20Pierre%20Semar%2C%2097200%20Fort-de-France" target="_blank" rel="noopener">Itinéraire</a>
+    <a href="https://www.google.com/maps/dir/?api=1&amp;destination=14.6103862,-61.070878" target="_blank" rel="noopener">Itinéraire</a>
     <a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener">Instagram</a>
   </nav>
 

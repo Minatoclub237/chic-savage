@@ -1,4 +1,3 @@
-import './style.css'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
@@ -14,17 +13,57 @@ lenis.on('scroll', ScrollTrigger.update)
 gsap.ticker.add((t) => lenis.raf(t * 1000))
 gsap.ticker.lagSmoothing(0)
 
+/* ---------- loader: brand logo until fonts + hero are ready ---------- */
+history.scrollRestoration = 'manual'
+scrollTo(0, 0)
+lenis.stop()
+const wait = (ms) => new Promise((r) => setTimeout(r, ms))
+const pageLoaded = new Promise((r) => (document.readyState === 'complete' ? r() : addEventListener('load', r, { once: true })))
+const firstPaint = new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+Promise.race([Promise.all([pageLoaded, document.fonts.ready, firstPaint.then(() => wait(1400))]), wait(6000)]).then(() => {
+  const loader = $('#loader')
+  const logo = $('#loader img')
+  const bar = $('#loader .loader-bar i')
+  gsap.set([logo, bar], { animation: 'none' })
+  gsap.set(logo, { opacity: 1 })
+  gsap.timeline({ onComplete: () => { loader.remove(); document.documentElement.classList.remove('is-loading'); lenis.start(); ScrollTrigger.refresh() } })
+    .fromTo(bar, { scaleX: 0.85 }, { scaleX: 1, duration: 0.35, ease: 'power2.out' })
+    .to(logo, { scale: 1.06, opacity: 0, filter: 'blur(6px)', duration: 0.6, ease: 'power2.in' }, '+=0.1')
+    .to(loader, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'power4.inOut' }, '-=0.25')
+})
+
+/* ---------- anchors; logo / « Accueil » land on the fully built hero ---------- */
+let heroEnd = null
 $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
-  const target = $(a.getAttribute('href'))
+  const href = a.getAttribute('href')
+  const target = $(href)
   if (!target) return
   e.preventDefault()
   closeMenu()
-  lenis.scrollTo(target, { offset: 0, duration: 1.4 })
+  lenis.scrollTo(href === '#top' ? (heroEnd ? heroEnd() : 0) : target, { offset: 0, duration: 1.4 })
 }))
 
 /* ---------- scroll cue: glides through the hero build ---------- */
-let heroEnd = () => $('#about').offsetTop
-$('.scroll-cue').addEventListener('click', () => lenis.scrollTo(heroEnd(), { duration: 2.2 }))
+$('.scroll-cue').addEventListener('click', () => lenis.scrollTo(heroEnd ? heroEnd() : '#about', { duration: 2.2 }))
+
+/* ---------- legal dialogs ---------- */
+$$('[data-dialog]').forEach((b) => b.addEventListener('click', () => $(`#${b.dataset.dialog}`).showModal()))
+$$('dialog.legal').forEach((d) => {
+  $('.legal-close', d).addEventListener('click', () => d.close())
+  d.addEventListener('click', (e) => { if (e.target === d) d.close() })
+})
+
+/* ---------- opening hours: today + open now (heure de Martinique) ---------- */
+const now = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Martinique', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).map((p) => [p.type, p.value]))
+const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(now.weekday)
+const minutes = +now.hour * 60 + +now.minute
+const closing = day === 0 ? 0 : day === 3 ? 16 * 60 : 18 * 60
+const isOpen = minutes >= 9 * 60 && minutes < closing
+$(`.hours li[data-day="${day}"]`)?.classList.add('is-today')
+const badge = $('.open-now')
+badge.textContent = isOpen ? 'Ouvert' : 'Fermé'
+badge.classList.toggle('is-closed', !isOpen)
+badge.hidden = false
 
 /* ---------- mobile menu ---------- */
 const burger = $('.burger')
@@ -50,7 +89,7 @@ fitAll()
 document.fonts.ready.then(() => { fitAll(); ScrollTrigger.refresh() })
 addEventListener('resize', fitAll)
 
-gsap.set('.hero-model', { xPercent: -50 })
+gsap.set('.hero-model', { xPercent: -46 })
 
 /* ---------- about lead: split into words ---------- */
 const lead = $('.about-lead')
