@@ -22,6 +22,10 @@ $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
   lenis.scrollTo(target, { offset: 0, duration: 1.4 })
 }))
 
+/* ---------- scroll cue: glides through the hero build ---------- */
+let heroEnd = () => $('#about').offsetTop
+$('.scroll-cue').addEventListener('click', () => lenis.scrollTo(heroEnd(), { duration: 2.2 }))
+
 /* ---------- mobile menu ---------- */
 const burger = $('.burger')
 const menu = $('.mobile-menu')
@@ -46,6 +50,8 @@ fitAll()
 document.fonts.ready.then(() => { fitAll(); ScrollTrigger.refresh() })
 addEventListener('resize', fitAll)
 
+gsap.set('.hero-model', { xPercent: -50 })
+
 /* ---------- about lead: split into words ---------- */
 const lead = $('.about-lead')
 lead.innerHTML = lead.textContent.trim().split(/\s+/).map((w) => `<span class="w">${w}</span>`).join(' ')
@@ -56,20 +62,22 @@ mm.add({ desktop: '(min-width: 1001px)', motion: '(prefers-reduced-motion: no-pr
   const { desktop, motion } = ctx.conditions
   if (!motion) return
 
-  /* hero intro: side cards slide in, wordmark sharpens, nav drops */
-  gsap.timeline({ defaults: { ease: 'power3.out' } })
-    .from('.hero-model', { opacity: 0, scale: 1.04, duration: 1.1 }, 0)
-    .from('.stat-left', { x: -260, opacity: 0, duration: 1 }, 0.1)
-    .from('.stat-right', { x: 260, opacity: 0, duration: 1 }, 0.1)
-    .from('.hero-word span', { opacity: 0, scale: 1.12, filter: 'blur(14px)', duration: 1.1 }, 0.35)
-    .from('.btn-hero', { x: 60, opacity: 0, duration: 0.8 }, 0.55)
-    .from('.nav', { y: -30, opacity: 0, duration: 0.8 }, 0.7)
-
-  /* hero parallax on leave */
-  const heroST = { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
-  gsap.to('.hero-word', { yPercent: 70, ease: 'none', scrollTrigger: heroST })
-  gsap.to('.hero-model', { y: 90, ease: 'none', scrollTrigger: heroST })
-  gsap.to('.stat, .btn-hero', { y: -60, ease: 'none', scrollTrigger: heroST })
+  /* hero: built by the scroll — pinned, cards slide in from the edges, wordmark sharpens */
+  const left = $('.stat-left')
+  const right = $('.stat-right')
+  const heroTl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: '+=110%', pin: true, scrub: 0.8, invalidateOnRefresh: true },
+  })
+  heroTl
+    .to('.scroll-cue', { opacity: 0, y: 20, duration: 0.12 }, 0)
+    .fromTo('.hero-model', { scale: 1.08 }, { scale: 1, duration: 1 }, 0)
+    .fromTo(left, { x: () => -(left.offsetLeft + left.offsetWidth * 0.8) }, { x: 0, duration: 0.4, ease: 'power2.out' }, 0.04)
+    .fromTo(right, { x: () => innerWidth - right.offsetLeft - right.offsetWidth * 0.2 }, { x: 0, duration: 0.4, ease: 'power2.out' }, 0.04)
+    .fromTo('.hero-word span', { opacity: 0, scale: 1.15, filter: 'blur(16px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.4 }, 0.3)
+    .fromTo('.btn-hero', { x: 160, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3 }, 0.5)
+    .to({}, { duration: 0.2 })
+  heroEnd = () => heroTl.scrollTrigger.end
 
   /* section heads */
   $$('.head, .price-head').forEach((h) => gsap.from(h.children, {
@@ -151,7 +159,7 @@ mm.add({ desktop: '(min-width: 1001px)', motion: '(prefers-reduced-motion: no-pr
   gsap.from('.faq-side h3, .faq-side .btn', { y: 30, opacity: 0, stagger: 0.15, ease: 'none', scrollTrigger: fST })
 
   /* gallery: photos grow from their centres */
-  gsap.from('.gal-grid figure', {
+  gsap.from('.gal-grid > a', {
     scale: 0.32, stagger: 0.06, ease: 'none',
     scrollTrigger: { trigger: '.gal-grid', start: 'top 100%', end: 'top 30%', scrub: true },
   })
