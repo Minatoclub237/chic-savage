@@ -7,12 +7,10 @@
   <!-- écran de chargement : styles critiques en ligne pour qu'il s'affiche avant tout le reste -->
   <style>
     html.is-loading { overflow: hidden; background: #020202; }
-    .loader { position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center; justify-items: center; gap: 30px; background: #020202; animation: loader-failsafe .6s 8s forwards; }
-    .loader img { width: min(340px, 68vw); height: auto; opacity: 0; -webkit-mask-image: radial-gradient(circle, #000 64%, transparent 76%); mask-image: radial-gradient(circle, #000 64%, transparent 76%); animation: loader-logo 1.1s .1s cubic-bezier(.2, .7, .2, 1) forwards; }
-    .loader-bar { width: min(220px, 50vw); height: 2px; border-radius: 2px; background: rgb(214 161 76 / .18); overflow: hidden; }
-    .loader-bar i { display: block; height: 100%; background: linear-gradient(90deg, #8d5e1f, #f6dfa4, #d6a14c); transform: scaleX(0); transform-origin: left; animation: loader-bar 1.8s cubic-bezier(.6, .1, .2, 1) forwards; }
-    @keyframes loader-logo { from { opacity: 0; transform: scale(.94); filter: blur(10px); } to { opacity: 1; transform: none; filter: none; } }
-    @keyframes loader-bar { to { transform: scaleX(.85); } }
+    .loader { position: fixed; inset: 0; z-index: 1000; background: #020202; animation: loader-failsafe .6s 9s forwards; }
+    .loader video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .loader-skip { position: absolute; right: 20px; bottom: 20px; min-height: 44px; padding: 0 18px; border: 1px solid rgb(246 223 164 / .45); border-radius: 999px; background: rgb(0 0 0 / .35); color: #f6dfa4; font: 600 14px system-ui, sans-serif; letter-spacing: .02em; cursor: pointer; }
+    @media (max-aspect-ratio: 1/1) { .loader video { object-fit: contain; } }
     @keyframes loader-failsafe { to { opacity: 0; visibility: hidden; } }
   </style>
   <noscript><style>.loader { display: none; } html.is-loading { overflow: auto; }</style></noscript>
@@ -22,7 +20,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link rel="preload" as="image" href="/img/logo-cs.webp" />
+  <link rel="preload" as="image" href="/img/loader-poster.webp" />
   <link rel="preload" as="image" href="/img/hero.webp" />
   <script type="application/ld+json">
   {
@@ -33,6 +31,7 @@
     "legalName": "Nicole Osel (Chic Savage Beauty)",
     "logo": "/img/logo-cs.webp",
     "telephone": "+596 696 31 73 56",
+    "email": "nicoleosel@gmail.com",
     "address": { "@type": "PostalAddress", "streetAddress": "39 rue Pierre Semard", "postalCode": "97200", "addressLocality": "Fort-de-France", "addressCountry": "MQ" },
     "geo": { "@type": "GeoCoordinates", "latitude": 14.6103862, "longitude": -61.070878 },
     "openingHoursSpecification": [
@@ -45,10 +44,13 @@
   </script>
 </head>
 <body>
-  <div class="loader" id="loader" aria-hidden="true">
-    <img src="/img/logo-cs.webp" width="640" height="640" alt="" />
-    <div class="loader-bar"><i></i></div>
+  <div class="loader" id="loader">
+    <video muted playsinline autoplay preload="auto" poster="/img/loader-poster.webp" aria-hidden="true"><source src="/video/loader.mp4" type="video/mp4" /></video>
+    <button class="loader-skip" type="button">Passer l’intro</button>
   </div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 8.3c.2-.4.5-.4.8-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .5-.1.7l-.5.6c.6 1.1 1.5 2 2.6 2.6l.6-.5c.2-.2.5-.2.7-.1l1.6.7c.3.1.4.3.4.5v.5c0 .3 0 .6-.4.8-.6.4-1.4.6-2.2.4-2.4-.6-4.6-2.8-5.2-5.2-.2-.8 0-1.6.4-2.2Z" fill="currentColor"/></symbol>
+  </svg>
 
   <!-- HERO -->
   <header class="hero" id="top">
@@ -62,12 +64,12 @@
       <ul class="nav-links">
         <li><a href="#pricing">Tarifs</a></li>
         <li><a href="#faq">FAQ</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="#rdv">Contact</a></li>
       </ul>
       <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false"><i></i><i></i></button>
     </nav>
     <div class="mobile-menu" hidden>
-      <a href="#top">Accueil</a><a href="#about">À propos</a><a href="#services">Soins</a><a href="#pricing">Tarifs</a><a href="#gallery">Réalisations</a><a href="#faq">FAQ</a><a href="#contact">Contact</a>
+      <a href="#top">Accueil</a><a href="#about">À propos</a><a href="#services">Soins</a><a href="#pricing">Tarifs</a><a href="#gallery">Réalisations</a><a href="#faq">FAQ</a><a href="#rdv" class="menu-cta">Prendre rendez-vous</a>
     </div>
 
     <h1 class="hero-word" aria-label="Chic Savage Beauty — institut de beauté à Fort-de-France"><span>CHIC SAVAGE</span></h1>
@@ -79,7 +81,10 @@
       <p>Blanchiment dentaire en séances de 20&nbsp;minutes pour raviver l’éclat de votre sourire.</p>
       <div class="avatars"><img src="/img/ic-1.webp" alt="" /><img src="/img/ic-2.webp" alt="" /><img src="/img/thumb-1.webp" alt="" /></div>
     </div>
-    <a href="tel:+596696317356" class="btn btn-hero">Prendre rendez-vous <span class="btn-ico">↗</span></a>
+    <div class="hero-ctas">
+      <a href="#rdv" class="btn">Prendre rendez-vous <span class="btn-ico">↗</span></a>
+      <a href="https://wa.me/596696317356?text=Bonjour%20Chic%20Savage%20Beauty%2C%20je%20souhaite%20prendre%20rendez-vous." target="_blank" rel="noopener" class="btn btn-glass">WhatsApp <span class="btn-ico"><svg class="wa"><use href="#i-wa" /></svg></span></a>
+    </div>
     <div class="stat stat-right">
       <span class="stat-ico" aria-hidden="true">↗</span>
       <strong>50&nbsp;€</strong>
@@ -129,6 +134,10 @@
         <figure class="step card-img"><img src="/img/step-4.webp" alt="Portrait au maquillage lumineux" loading="lazy" /></figure>
         <article class="step card-txt"><small>(ÉTAPE -04)</small><h3>Éclat &amp; suivi</h3><p>Des résultats visibles dès les premières séances, et nos conseils pour les prolonger.</p></article>
       </div>
+      <div class="section-cta">
+        <a href="#rdv" class="btn" data-soin="Je souhaite un conseil">Réserver mon diagnostic <span class="btn-ico">→</span></a>
+        <a href="https://wa.me/596696317356?text=Bonjour%2C%20j%E2%80%99aimerais%20un%20conseil%20pour%20choisir%20mon%20soin." target="_blank" rel="noopener" class="btn btn-outline">Un conseil sur WhatsApp <span class="btn-ico"><svg class="wa"><use href="#i-wa" /></svg></span></a>
+      </div>
     </section>
 
     <!-- SOINS -->
@@ -142,7 +151,7 @@
             <p class="rv">Un soin esthétique à la lumière LED pour redonner de l’éclat aux dents ternies ou tachées. Trois intensités, en séances de 20&nbsp;minutes.</p>
             <h4 class="rv">Les formules</h4>
             <ul class="rv"><li>Soin Express · 1 × 20 min</li><li>Soin Complet · 2 × 20 min</li><li>Soin Intense · 3 × 20 min</li><li>Dès 75&nbsp;€</li></ul>
-            <a href="#pricing" class="overview rv"><img src="/img/thumb-1.webp" alt="" loading="lazy" /><span><b>Voir les tarifs</b>Express, Complet ou Intense</span></a>
+            <div class="serv-foot rv"><a href="#pricing" class="overview"><img src="/img/thumb-1.webp" alt="" loading="lazy" /><span><b>Voir les tarifs</b>Express, Complet ou Intense</span></a><a href="#rdv" class="btn btn-sm" data-soin="Blanchiment — Soin Express (75 €)">Réserver <span class="btn-ico">→</span></a></div>
           </div>
         </article>
         <article class="serv">
@@ -152,7 +161,7 @@
             <p class="rv">Des cristaux Swarovski posés à la surface de la dent pour une touche glamour, du strass discret au design doré sur plusieurs dents.</p>
             <h4 class="rv">Les options</h4>
             <ul class="rv"><li>Strass · 15&nbsp;€</li><li>2ᵉ strass · 10&nbsp;€</li><li>3ᵉ strass et + · 5&nbsp;€</li><li>Design · 45&nbsp;€</li></ul>
-            <a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener" class="overview rv"><img src="/img/thumb-2.webp" alt="" loading="lazy" /><span><b>Voir nos créations</b>Sur Instagram @chicsavagebeauty</span></a>
+            <div class="serv-foot rv"><a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener" class="overview"><img src="/img/thumb-2.webp" alt="" loading="lazy" /><span><b>Voir nos créations</b>Sur Instagram</span></a><a href="#rdv" class="btn btn-sm" data-soin="Strass dentaire (dès 15 €)">Réserver <span class="btn-ico">→</span></a></div>
           </div>
         </article>
         <article class="serv">
@@ -162,7 +171,7 @@
             <p class="rv">Une technique utilisant des ultrasons pour détruire les cellules graisseuses. Son but&nbsp;: réduire les amas graisseux et affiner la silhouette.</p>
             <h4 class="rv">Ses bienfaits</h4>
             <ul class="rv"><li>Perte de centimètres</li><li>Peau plus lisse</li><li>Ventre &amp; dos</li><li>Bras, jambes &amp; fesses</li></ul>
-            <a href="#pricing" class="overview rv"><img src="/img/thumb-3.webp" alt="" loading="lazy" /><span><b>Séance découverte</b>50&nbsp;€ pour essayer</span></a>
+            <div class="serv-foot rv"><a href="#pricing" class="overview"><img src="/img/thumb-3.webp" alt="" loading="lazy" /><span><b>Séance découverte</b>50&nbsp;€ pour essayer</span></a><a href="#rdv" class="btn btn-sm" data-soin="Séance découverte lipocavitation (50 €)">Réserver <span class="btn-ico">→</span></a></div>
           </div>
         </article>
         <article class="serv">
@@ -172,7 +181,7 @@
             <p class="rv">Des ondes électromagnétiques pour raffermir et retendre la peau. Associée à la lipocavitation, elle stimule le collagène pour des résultats optimisés.</p>
             <h4 class="rv">Ses bienfaits</h4>
             <ul class="rv"><li>Peau plus ferme</li><li>Effet tenseur</li><li>Lutte contre le relâchement</li><li>Non invasive</li></ul>
-            <a href="#pricing" class="overview rv"><img src="/img/thumb-4.webp" alt="" loading="lazy" /><span><b>Forfaits 10 séances</b>Pour un résultat durable</span></a>
+            <div class="serv-foot rv"><a href="#pricing" class="overview"><img src="/img/thumb-4.webp" alt="" loading="lazy" /><span><b>Forfaits 10 séances</b>Pour un résultat durable</span></a><a href="#rdv" class="btn btn-sm" data-soin="Lipocavitation &amp; radiofréquence — séance">Réserver <span class="btn-ico">→</span></a></div>
           </div>
         </article>
       </div>
@@ -193,6 +202,10 @@
         <div class="row"><span class="num">(07)</span><div><h3>Séance découverte</h3><p>Lipocavitation &amp; radiofréquence, pour découvrir le soin</p></div><b>50&nbsp;€</b></div>
         <div class="row"><span class="num">(08)</span><div><h3>Forfaits 10 séances</h3><p>Bras 600&nbsp;€ · jambes &amp; fesses 650&nbsp;€ · ventre &amp; dos 650&nbsp;€ · corps entier 900&nbsp;€</p></div><b>dès 600&nbsp;€</b></div>
         <p class="price-note">Prestations uniquement sur rendez-vous · Acompte obligatoire</p>
+        <div class="section-cta">
+          <a href="#rdv" class="btn">Réserver un soin <span class="btn-ico">→</span></a>
+          <a href="https://wa.me/596696317356?text=Bonjour%2C%20j%E2%80%99ai%20une%20question%20sur%20vos%20tarifs." target="_blank" rel="noopener" class="btn btn-outline">Une question sur les tarifs&nbsp;? <span class="btn-ico"><svg class="wa"><use href="#i-wa" /></svg></span></a>
+        </div>
       </div>
     </section>
 
@@ -210,6 +223,10 @@
           <article class="t-card"><span class="t-ico">✦</span><h3>Un moment pour vous</h3><p>Uniquement sur rendez-vous&nbsp;: un créneau réservé, rien que pour vous, à Fort-de-France.</p><footer><i class="t-dot">04</i><span><b>Sur rendez-vous</b>Acompte obligatoire</span></footer></article>
         </div>
       </div>
+      <div class="section-cta">
+        <a href="#rdv" class="btn">Prendre rendez-vous <span class="btn-ico">→</span></a>
+        <a href="tel:+596696317356" class="btn btn-outline">Appeler le 0696 31 73 56 <span class="btn-ico">☏</span></a>
+      </div>
       <p class="review-cta">Déjà venue à l’institut&nbsp;? <a href="https://maps.google.com/?cid=2605567330554344886" target="_blank" rel="noopener">Laissez-nous un avis sur Google →</a></p>
     </section>
 
@@ -220,7 +237,10 @@
         <div class="faq-side">
           <div class="faq-img"><img src="/img/faq.webp" alt="Soin du visage en institut" loading="lazy" /></div>
           <h3>Vous avez d’autres<br />questions&nbsp;?</h3>
-          <a href="tel:+596696317356" class="btn">Nous appeler <span class="btn-ico">→</span></a>
+          <div class="btn-row">
+            <a href="tel:+596696317356" class="btn">Nous appeler <span class="btn-ico">→</span></a>
+            <a href="https://wa.me/596696317356?text=Bonjour%2C%20j%E2%80%99ai%20une%20question." target="_blank" rel="noopener" class="btn btn-outline">WhatsApp <span class="btn-ico"><svg class="wa"><use href="#i-wa" /></svg></span></a>
+          </div>
         </div>
         <div class="faq-list">
           <details open><summary>Comment prendre rendez-vous&nbsp;?<i></i></summary><p>Les prestations se font uniquement sur rendez-vous&nbsp;: appelez le 0696&nbsp;31&nbsp;73&nbsp;56 ou écrivez-nous sur Instagram @chicsavagebeauty. Un acompte est demandé pour confirmer votre créneau.</p></details>
@@ -244,6 +264,82 @@
         <a class="g4" href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener"><img src="/img/gal-4.webp" alt="Affiche lipocavitation et radiofréquence" loading="lazy" /></a>
         <a class="g5" href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener"><img src="/img/gal-5.webp" alt="Logo doré Chic Savage Beauty — Votre éclat, notre art" loading="lazy" /></a>
       </div>
+      <div class="section-cta">
+        <a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener" class="btn btn-outline">Suivre @chicsavagebeauty <span class="btn-ico">↗</span></a>
+        <a href="#rdv" class="btn">Réserver mon soin <span class="btn-ico">→</span></a>
+      </div>
+    </section>
+
+    <!-- RENDEZ-VOUS -->
+    <section class="rdv" id="rdv">
+      <div class="head"><span class="tag"><b>★</b> Rendez-vous</span><h2>Réservez votre soin</h2></div>
+      <div class="wrap rdv-grid">
+        <aside class="rdv-info">
+          <img src="/img/logo-cs.webp" width="96" height="96" alt="" loading="lazy" />
+          <h3>Un créneau rien que pour vous</h3>
+          <p>Remplissez le formulaire&nbsp;: nous vous recontactons rapidement pour confirmer la date et l’heure. Un acompte est demandé pour valider le rendez-vous.</p>
+          <ul class="rdv-facts">
+            <li><b>Adresse</b>39 rue Pierre Semard, 97200 Fort-de-France</li>
+            <li><b>Horaires</b>Lun.–sam. 9&nbsp;h–18&nbsp;h · mer. 9&nbsp;h–16&nbsp;h</li>
+            <li><b>Téléphone</b><a href="tel:+596696317356">0696 31 73 56</a></li>
+          </ul>
+          <div class="btn-row">
+            <a href="https://wa.me/596696317356?text=Bonjour%20Chic%20Savage%20Beauty%2C%20je%20souhaite%20prendre%20rendez-vous." target="_blank" rel="noopener" class="btn btn-wa">WhatsApp <span class="btn-ico"><svg class="wa"><use href="#i-wa" /></svg></span></a>
+            <a href="tel:+596696317356" class="btn btn-ghost">Appeler <span class="btn-ico">☏</span></a>
+          </div>
+        </aside>
+
+        <form class="rdv-form" id="rdv-form" novalidate>
+          <div class="f-row">
+            <label class="f"><span>Prénom &amp; nom *</span><input name="nom" required autocomplete="name" placeholder="Marie Dupont" /></label>
+            <label class="f"><span>Téléphone *</span><input name="telephone" type="tel" required autocomplete="tel" inputmode="tel" pattern="[0-9 +().-]{8,}" placeholder="0696 00 00 00" /></label>
+          </div>
+          <label class="f"><span>E-mail <i>(pour recevoir la confirmation)</i></span><input name="email" type="email" autocomplete="email" placeholder="vous@exemple.com" /></label>
+          <label class="f"><span>Soin souhaité *</span>
+            <select name="soin" required>
+              <option value="">Choisissez un soin…</option>
+              <optgroup label="Blanchiment dentaire">
+                <option>Blanchiment — Soin Express (75 €)</option>
+                <option>Blanchiment — Soin Complet (95 €)</option>
+                <option>Blanchiment — Soin Intense (125 €)</option>
+              </optgroup>
+              <optgroup label="Strass &amp; design">
+                <option>Strass dentaire (dès 15 €)</option>
+                <option>Design dentaire (45 € / sur devis)</option>
+              </optgroup>
+              <optgroup label="Silhouette">
+                <option>Séance découverte lipocavitation (50 €)</option>
+                <option>Lipocavitation &amp; radiofréquence — séance</option>
+                <option>Forfait 10 séances</option>
+              </optgroup>
+              <option>Je souhaite un conseil</option>
+            </select>
+          </label>
+          <div class="f-row">
+            <label class="f"><span>Date souhaitée *</span><input name="date" type="date" required /></label>
+            <label class="f"><span>Créneau *</span>
+              <select name="creneau" required>
+                <option value="">Choisissez…</option>
+                <option>Matin (9 h – 12 h)</option>
+                <option>Début d’après-midi (12 h – 16 h)</option>
+                <option class="late">Fin d’après-midi (16 h – 18 h)</option>
+              </select>
+            </label>
+          </div>
+          <label class="f"><span>Message <i>(facultatif)</i></span><textarea name="message" rows="3" placeholder="Zone à traiter, nombre de strass, question…"></textarea></label>
+          <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <label class="f-check"><input type="checkbox" name="consentement" required /><span>J’accepte que mes informations soient utilisées pour traiter ma demande de rendez-vous (voir <button type="button" data-dialog="privacy">confidentialité</button>).</span></label>
+          <p class="f-error" role="alert" hidden></p>
+          <div class="f-actions">
+            <button class="btn" type="submit">Envoyer ma demande <span class="btn-ico">→</span></button>
+            <button class="btn btn-wa" type="button" id="rdv-wa">Envoyer sur WhatsApp <span class="btn-ico"><svg class="wa"><use href="#i-wa" /></svg></span></button>
+          </div>
+          <div class="f-success" role="status" hidden>
+            <b>Merci, votre demande est bien envoyée&nbsp;!</b>
+            <p>Nous vous recontactons très vite pour confirmer votre rendez-vous.</p>
+          </div>
+        </form>
+      </div>
     </section>
   </main>
 
@@ -255,8 +351,9 @@
         <h3>Prenez soin de vous et révélez votre beauté.</h3>
       </div>
       <div class="foot-cta-btns">
-        <a class="btn" href="tel:+596696317356">Appeler le 0696 31 73 56 <span class="btn-ico">→</span></a>
-        <a class="btn btn-ghost" href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener">Écrire sur Instagram <span class="btn-ico">↗</span></a>
+        <a class="btn" href="#rdv">Prendre rendez-vous <span class="btn-ico">→</span></a>
+        <a class="btn btn-ghost" href="https://wa.me/596696317356?text=Bonjour%20Chic%20Savage%20Beauty%2C%20je%20souhaite%20prendre%20rendez-vous." target="_blank" rel="noopener">WhatsApp <span class="btn-ico"><svg class="wa"><use href="#i-wa" /></svg></span></a>
+        <a class="btn btn-ghost" href="tel:+596696317356">0696 31 73 56 <span class="btn-ico">☏</span></a>
       </div>
     </div>
 
@@ -288,6 +385,8 @@
         <h4>Contact</h4>
         <address>39 rue Pierre Semard<br />97200 Fort-de-France<br />Martinique</address>
         <a href="tel:+596696317356">0696 31 73 56</a>
+        <a href="mailto:nicoleosel@gmail.com">nicoleosel@gmail.com</a>
+        <a href="https://wa.me/596696317356" target="_blank" rel="noopener">WhatsApp</a>
         <a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener">@chicsavagebeauty</a>
         <a href="https://www.google.com/maps/dir/?api=1&amp;destination=14.6103862,-61.070878" target="_blank" rel="noopener">Itinéraire →</a>
         <p class="foot-note">Uniquement sur rendez-vous · acompte obligatoire</p>
@@ -306,7 +405,7 @@
     <button class="legal-close" type="button" aria-label="Fermer">×</button>
     <h2 id="legal-title">Mentions légales</h2>
     <h3>Éditeur du site</h3>
-    <p>Nicole Vanessa OSEL, entrepreneur individuel, exerçant sous le nom commercial <b>Chic Savage Beauty</b>.<br />39 rue Pierre Semard, 97200 Fort-de-France, Martinique.<br />SIREN 105 743 835 · SIRET 105 743 835 00016 · Code APE 96.02B (soins de beauté).<br />Téléphone&nbsp;: <a href="tel:+596696317356">0696 31 73 56</a></p>
+    <p>Nicole Vanessa OSEL, entrepreneur individuel, exerçant sous le nom commercial <b>Chic Savage Beauty</b>.<br />39 rue Pierre Semard, 97200 Fort-de-France, Martinique.<br />SIREN 105 743 835 · SIRET 105 743 835 00016 · Code APE 96.02B (soins de beauté).<br />Téléphone&nbsp;: <a href="tel:+596696317356">0696 31 73 56</a> · E-mail&nbsp;: <a href="mailto:nicoleosel@gmail.com">nicoleosel@gmail.com</a></p>
     <h3>Directrice de la publication</h3>
     <p>Nicole Vanessa OSEL.</p>
     <h3>Hébergement</h3>
@@ -321,18 +420,23 @@
     <button class="legal-close" type="button" aria-label="Fermer">×</button>
     <h2 id="privacy-title">Politique de confidentialité</h2>
     <h3>Données collectées</h3>
-    <p>Ce site ne comporte aucun formulaire et ne dépose aucun cookie de mesure d’audience ou publicitaire. Les informations que vous transmettez pour réserver (par téléphone ou sur Instagram) servent uniquement à la gestion de vos rendez-vous.</p>
+    <p>Ce site ne dépose aucun cookie de mesure d’audience ou publicitaire. Le formulaire de rendez-vous recueille votre nom, votre téléphone, votre e-mail (facultatif), le soin et la date souhaités ainsi que votre message. Ces informations servent uniquement à traiter votre demande et à gérer vos rendez-vous&nbsp;; elles ne sont ni vendues ni cédées.</p>
+    <h3>Transmission</h3>
+    <p>Lorsque vous cliquez sur «&nbsp;Envoyer ma demande&nbsp;», vos informations sont transmises par e-mail à Chic Savage Beauty via le service FormSubmit (formsubmit.co). Si vous choisissez «&nbsp;Envoyer sur WhatsApp&nbsp;», le message est envoyé depuis votre propre application WhatsApp (Meta).</p>
+    <h3>Durée de conservation</h3>
+    <p>Les demandes sont conservées le temps nécessaire à la gestion de votre rendez-vous et du suivi de vos soins, puis supprimées.</p>
     <h3>Liens externes</h3>
-    <p>Les liens vers Instagram et Google Maps vous dirigent vers des services tiers, soumis à leurs propres politiques de confidentialité.</p>
+    <p>Les liens vers Instagram, WhatsApp et Google Maps vous dirigent vers des services tiers, soumis à leurs propres politiques de confidentialité.</p>
     <h3>Vos droits</h3>
-    <p>Conformément au RGPD, vous pouvez demander l’accès, la rectification ou la suppression de vos données en appelant le 0696&nbsp;31&nbsp;73&nbsp;56 ou par courrier au 39 rue Pierre Semard, 97200 Fort-de-France. Vous pouvez également saisir la CNIL (cnil.fr).</p>
+    <p>Conformément au RGPD, vous pouvez demander l’accès, la rectification ou la suppression de vos données en appelant le 0696&nbsp;31&nbsp;73&nbsp;56, par e-mail à nicoleosel@gmail.com ou par courrier au 39 rue Pierre Semard, 97200 Fort-de-France. Vous pouvez également saisir la CNIL (cnil.fr).</p>
   </dialog>
 
   <!-- barre d'action mobile -->
   <nav class="mbar" aria-label="Actions rapides">
+    <a href="#rdv">Réserver</a>
+    <a href="https://wa.me/596696317356?text=Bonjour%20Chic%20Savage%20Beauty%2C%20je%20souhaite%20prendre%20rendez-vous." target="_blank" rel="noopener">WhatsApp</a>
     <a href="tel:+596696317356">Appeler</a>
     <a href="https://www.google.com/maps/dir/?api=1&amp;destination=14.6103862,-61.070878" target="_blank" rel="noopener">Itinéraire</a>
-    <a href="https://www.instagram.com/chicsavagebeauty/" target="_blank" rel="noopener">Instagram</a>
   </nav>
 
   <script type="module" src="/src/main.js"></script>

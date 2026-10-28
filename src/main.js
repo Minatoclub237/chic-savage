@@ -13,24 +13,30 @@ lenis.on('scroll', ScrollTrigger.update)
 gsap.ticker.add((t) => lenis.raf(t * 1000))
 gsap.ticker.lagSmoothing(0)
 
-/* ---------- loader: brand logo until fonts + hero are ready ---------- */
+/* ---------- loader: brand video, then wipe up onto the hero ---------- */
 history.scrollRestoration = 'manual'
 scrollTo(0, 0)
 lenis.stop()
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 const pageLoaded = new Promise((r) => (document.readyState === 'complete' ? r() : addEventListener('load', r, { once: true })))
-const firstPaint = new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
-Promise.race([Promise.all([pageLoaded, document.fonts.ready, firstPaint.then(() => wait(1400))]), wait(6000)]).then(() => {
-  const loader = $('#loader')
-  const logo = $('#loader img')
-  const bar = $('#loader .loader-bar i')
-  gsap.set([logo, bar], { animation: 'none' })
-  gsap.set(logo, { opacity: 1 })
-  gsap.timeline({ onComplete: () => { loader.remove(); document.documentElement.classList.remove('is-loading'); lenis.start(); ScrollTrigger.refresh() } })
-    .fromTo(bar, { scaleX: 0.85 }, { scaleX: 1, duration: 0.35, ease: 'power2.out' })
-    .to(logo, { scale: 1.06, opacity: 0, filter: 'blur(6px)', duration: 0.6, ease: 'power2.in' }, '+=0.1')
-    .to(loader, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'power4.inOut' }, '-=0.25')
-})
+const loader = $('#loader')
+const intro = $('#loader video')
+let leaving = false
+function leaveLoader() {
+  if (leaving) return
+  leaving = true
+  Promise.race([Promise.all([pageLoaded, document.fonts.ready]), wait(2500)]).then(() => {
+    gsap.to(loader, {
+      clipPath: 'inset(0% 0% 100% 0%)', duration: 0.95, ease: 'power4.inOut',
+      onComplete: () => { loader.remove(); document.documentElement.classList.remove('is-loading'); lenis.start(); ScrollTrigger.refresh() },
+    })
+  })
+}
+intro.addEventListener('ended', leaveLoader)
+$('.loader-skip').addEventListener('click', leaveLoader)
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) { intro.pause(); wait(600).then(leaveLoader) }
+else intro.play().catch(() => wait(1500).then(leaveLoader)) // autoplay refused: show the poster, then go
+wait(7500).then(leaveLoader) // slow network safety net
 
 /* ---------- anchors; logo / « Accueil » land on the fully built hero ---------- */
 let heroEnd = null
@@ -40,8 +46,97 @@ $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
   if (!target) return
   e.preventDefault()
   closeMenu()
+  if (a.dataset.soin) form.elements.soin.value = a.dataset.soin
   lenis.scrollTo(href === '#top' ? (heroEnd ? heroEnd() : 0) : target, { offset: 0, duration: 1.4 })
 }))
+
+/* ---------- rendez-vous: e-mail (FormSubmit) or WhatsApp ---------- */
+const form = $('#rdv-form')
+const MAIL = 'nicoleosel@gmail.com'
+const WA = '596696317356'
+const errorBox = $('.f-error', form)
+const dateInput = form.elements.date
+const lateSlot = $('option.late', form)
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Martinique' }).format(new Date())
+dateInput.min = today
+const dayOf = (iso) => new Date(`${iso}T12:00:00`).getDay()
+const frDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+dateInput.addEventListener('change', () => {
+  const d = dateInput.value ? dayOf(dateInput.value) : -1
+  dateInput.setCustomValidity(d === 0 ? 'L’institut est fermé le dimanche : choisissez un autre jour.' : '')
+  lateSlot.disabled = d === 3 // le mercredi, fermeture à 16 h
+  if (lateSlot.disabled && lateSlot.selected) form.elements.creneau.value = ''
+})
+
+function check() {
+  form.classList.add('was-validated')
+  errorBox.hidden = true
+  if (form.checkValidity()) return true
+  const bad = form.querySelector(':invalid')
+  errorBox.textContent = bad.validationMessage || 'Merci de compléter les champs obligatoires.'
+  errorBox.hidden = false
+  bad.focus()
+  return false
+}
+
+function summary() {
+  const f = form.elements
+  return [
+    `Nom : ${f.nom.value.trim()}`,
+    `Téléphone : ${f.telephone.value.trim()}`,
+    f.email.value.trim() && `E-mail : ${f.email.value.trim()}`,
+    `Soin : ${f.soin.value}`,
+    `Date souhaitée : ${frDate(f.date.value)} — ${f.creneau.value}`,
+    f.message.value.trim() && `Message : ${f.message.value.trim()}`,
+  ].filter(Boolean)
+}
+
+$('#rdv-wa').addEventListener('click', () => {
+  if (!check()) return
+  const text = ['Bonjour Chic Savage Beauty ✨', 'Je souhaite prendre rendez-vous :', ...summary().map((l) => `• ${l}`)].join('\n')
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(text)}`, '_blank', 'noopener')
+})
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault()
+  if (!check()) return
+  if (form.elements._honey.value) return
+  const submit = $('button[type="submit"]', form)
+  submit.disabled = true
+  const f = form.elements
+  const payload = {
+    _subject: `Demande de rendez-vous — ${f.nom.value.trim()} — ${f.soin.value}`,
+    _template: 'table',
+    _captcha: 'false',
+    Nom: f.nom.value.trim(),
+    Téléphone: f.telephone.value.trim(),
+    email: f.email.value.trim() || undefined,
+    Soin: f.soin.value,
+    'Date souhaitée': frDate(f.date.value),
+    Créneau: f.creneau.value,
+    Message: f.message.value.trim() || '—',
+  }
+  try {
+    const res = await fetch(`https://formsubmit.co/ajax/${MAIL}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok || String(data.success) !== 'true') throw new Error(data.message || res.status)
+    $('.f-actions', form).hidden = true
+    $('.f-success', form).hidden = false
+    form.reset()
+    form.classList.remove('was-validated')
+  } catch {
+    const body = encodeURIComponent(`Bonjour,\n\nJe souhaite prendre rendez-vous :\n${summary().join('\n')}\n`)
+    errorBox.innerHTML = `L’envoi n’a pas abouti. Vous pouvez <a href="mailto:${MAIL}?subject=${encodeURIComponent('Demande de rendez-vous')}&body=${body}">envoyer la demande par e-mail</a> ou utiliser le bouton WhatsApp.`
+    errorBox.hidden = false
+  } finally {
+    submit.disabled = false
+  }
+})
 
 /* ---------- scroll cue: glides through the hero build ---------- */
 $('.scroll-cue').addEventListener('click', () => lenis.scrollTo(heroEnd ? heroEnd() : '#about', { duration: 2.2 }))
@@ -114,7 +209,7 @@ mm.add({ desktop: '(min-width: 1001px)', motion: '(prefers-reduced-motion: no-pr
     .fromTo(left, { x: () => -(left.offsetLeft + left.offsetWidth * 0.8) }, { x: 0, duration: 0.4, ease: 'power2.out' }, 0.04)
     .fromTo(right, { x: () => innerWidth - right.offsetLeft - right.offsetWidth * 0.2 }, { x: 0, duration: 0.4, ease: 'power2.out' }, 0.04)
     .fromTo('.hero-word span', { opacity: 0, scale: 1.15, filter: 'blur(16px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.4 }, 0.3)
-    .fromTo('.btn-hero', { x: 160, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3 }, 0.5)
+    .fromTo('.hero-ctas > *', { x: 160, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, stagger: 0.08 }, 0.5)
     .to({}, { duration: 0.2 })
   heroEnd = () => heroTl.scrollTrigger.end
 
@@ -202,6 +297,17 @@ mm.add({ desktop: '(min-width: 1001px)', motion: '(prefers-reduced-motion: no-pr
     scale: 0.32, stagger: 0.06, ease: 'none',
     scrollTrigger: { trigger: '.gal-grid', start: 'top 100%', end: 'top 30%', scrub: true },
   })
+
+  /* calls to action rise in after their section */
+  $$('.section-cta').forEach((c) => gsap.from(c.children, {
+    y: 30, opacity: 0, stagger: 0.1, ease: 'none',
+    scrollTrigger: { trigger: c, start: 'top 95%', end: 'top 75%', scrub: true },
+  }))
+
+  /* rendez-vous: info card from the left, form from the right */
+  const rST = { trigger: '.rdv-grid', start: 'top 95%', end: 'top 45%', scrub: true }
+  gsap.from('.rdv-info', { x: -160, opacity: 0, ease: 'none', scrollTrigger: rST })
+  gsap.from('.rdv-form', { x: 160, opacity: 0, ease: 'none', scrollTrigger: rST })
 
   /* footer: letters rise one by one */
   gsap.from('.foot-word .ch', {
