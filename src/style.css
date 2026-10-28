@@ -47,8 +47,7 @@ button.btn { border: 0; cursor: pointer; }
 .btn .wa { width: 22px; height: 22px; }
 .btn-sm { min-height: 46px; padding: 4px 4px 4px 16px; font-size: 15px; }
 .btn-sm .btn-ico { width: 38px; height: 38px; }
-.btn-glass { background: rgb(255 255 255 / .55); color: var(--ink); border: 1px solid rgb(255 255 255 / .8); backdrop-filter: blur(10px); box-shadow: 0 6px 18px rgb(160 90 50 / .12); }
-.btn-glass .btn-ico { background: #1fa855; color: #fff; }
+.foot .wa-link { color: #3fcf7a; font-weight: 600; }
 .btn-outline { background: transparent; color: var(--ink); border: 1px solid #e3cfc3; box-shadow: none; }
 .btn-outline .btn-ico { background: #f6ece6; }
 .btn-outline:hover { box-shadow: 0 10px 24px rgb(201 128 90 / .15); }
@@ -313,8 +312,8 @@ details p { padding: 0 20px 20px; font-size: 15px; line-height: 1.6; }
   .rdv-grid { grid-template-columns: 1fr; }
   .f-row { grid-template-columns: 1fr; }
   .about-top, .about-bottom { grid-template-columns: 1fr; gap: 18px; }
-  .about-cta { order: 3; }
-  .petal { display: none; }
+  .about-cta { order: 3; padding-top: 76px; }
+  .petal { left: 34px; bottom: 66px; }
   .steps { grid-template-columns: 1fr 1fr; }
   .serv { grid-template-columns: 1fr; }
   .serv-img { min-height: 260px; }
@@ -338,16 +337,20 @@ details p { padding: 0 20px 20px; font-size: 15px; line-height: 1.6; }
   :root { --wrap: calc(100% - 32px); }
   .hero { min-height: 700px; }
   .hero-model { height: 96%; top: 18%; }
-  .stat p { display: none; }
-  .stat strong { margin-bottom: 12px; }
-  .hero-ctas { bottom: 222px; flex-wrap: wrap; }
+  .stat { padding: 14px; background: rgb(255 255 255 / .72); }
+  .stat strong { font-size: 26px; }
+  .stat p { margin: 6px 0 10px; font-size: 14px; line-height: 1.4; }
+  .avatars img { width: 30px; height: 30px; }
+  .hero-ctas { bottom: 262px; flex-wrap: nowrap; }
+  .hero-ctas .btn-wa { padding: 4px; }
+  .hero-ctas .btn-wa .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .serv-foot { flex-direction: column; align-items: flex-start; }
   .rdv-form, .rdv-info { padding: 22px 18px; }
-  .steps { gap: 6px; }
-  .step { height: 170px; }
+  .steps { gap: 6px; grid-auto-rows: 236px; }
+  .step { height: auto; }
   .card-txt { padding: 14px; }
   .card-txt h3 { font-size: 16px; }
-  .card-txt p { display: none; }
+  .card-txt p { font-size: 14px; line-height: 1.4; }
   .gal-grid { grid-auto-rows: 140px; gap: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -229,32 +229,29 @@ mm.add({ desktop: '(min-width: 1001px)', motion: '(prefers-reduced-motion: no-pr
   gsap.from('.about-cta .btn', { x: -120, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.about-bottom', start: 'top 95%', end: 'top 60%', scrub: true } })
   gsap.fromTo('.petal', { y: 80, rotate: -25 }, { y: -60, rotate: 15, ease: 'none', scrollTrigger: { trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: true } })
 
-  /* working process: a deck of cards deals out into the grid */
+  /* working process: a deck of cards deals out into the grid (4 columns on desktop, 2 on mobile) */
+  const grid = $('.steps')
   const tiles = $$('.step')
-  if (desktop) {
-    const cols = 4
-    const pos = () => tiles.map((t) => ({ x: t.offsetLeft, w: t.offsetWidth }))
-    let p = pos()
-    const centerX = () => (tiles[0].parentElement.clientWidth - p[0].w) / 2
-    const tl = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        trigger: '.steps', start: 'top 95%', end: 'top 22%', scrub: 0.6,
-        invalidateOnRefresh: true, onRefreshInit: () => { p = pos() },
-      },
-    })
-    tiles.forEach((t, i) => {
-      const c = i % cols
-      t.style.zIndex = 10 - c
-      tl.fromTo(t,
-        { x: () => centerX() - p[i].x + c * 8, scale: 1 - c * 0.035 },
-        { x: () => p[i - c].x - p[i].x + c * 8, duration: 0.3 }, 0.12)
-      tl.to(t, { x: 0, scale: 1, duration: 0.45, ease: 'power2.inOut' }, 0.47 + c * 0.08)
-    })
-    tl.from('.steps', { opacity: 0, y: 40, duration: 0.12 }, 0)
-  } else {
-    gsap.from(tiles, { y: 50, opacity: 0, stagger: 0.08, ease: 'none', scrollTrigger: { trigger: '.steps', start: 'top 90%', end: 'top 40%', scrub: true } })
-  }
+  const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length
+  const pos = () => tiles.map((t) => ({ x: t.offsetLeft, w: t.offsetWidth }))
+  let p = pos()
+  const centerX = () => (grid.clientWidth - p[0].w) / 2
+  const deck = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      trigger: grid, start: desktop ? 'top 95%' : 'top 90%', end: desktop ? 'top 22%' : 'top 15%', scrub: 0.6,
+      invalidateOnRefresh: true, onRefreshInit: () => { p = pos() },
+    },
+  })
+  tiles.forEach((t, i) => {
+    const c = i % cols
+    t.style.zIndex = 10 - c
+    deck.fromTo(t,
+      { x: () => centerX() - p[i].x + c * 8, scale: 1 - c * 0.035 },
+      { x: () => p[i - c].x - p[i].x + c * 8, duration: 0.3 }, 0.12)
+    deck.to(t, { x: 0, scale: 1, duration: 0.45, ease: 'power2.inOut' }, 0.47 + c * 0.08)
+  })
+  deck.from(grid, { opacity: 0, y: 40, duration: 0.12 }, 0)
 
   /* services: panel content reveals, image parallax */
   $$('.serv').forEach((card) => {
@@ -269,14 +266,14 @@ mm.add({ desktop: '(min-width: 1001px)', motion: '(prefers-reduced-motion: no-pr
   })
 
   /* pricing: the tilted photo lands, the band sweeps open, rows rise */
+  const photo = $('.price-photo')
+  const photoToCenter = () => photo.parentElement.clientWidth / 2 - (photo.offsetLeft + photo.offsetWidth / 2)
   const priceTl = gsap.timeline({
     defaults: { ease: 'none' },
-    scrollTrigger: desktop
-      ? { trigger: '.pricing', start: 'top top', end: '+=110%', pin: true, scrub: 0.6, anticipatePin: 1 }
-      : { trigger: '.pricing', start: 'top 80%', end: 'top 10%', scrub: true },
+    scrollTrigger: { trigger: '.pricing', start: 'top top', end: '+=110%', pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true },
   })
   priceTl
-    .fromTo('.price-photo', { y: () => innerHeight * 0.22, scale: 2.3, rotate: -14 }, { y: 0, scale: 1, rotate: -5, duration: 1, ease: 'power1.inOut' })
+    .fromTo(photo, { x: photoToCenter, y: () => innerHeight * 0.22, scale: desktop ? 2.3 : 2.6, rotate: -14 }, { x: 0, y: 0, scale: 1, rotate: -5, duration: 1, ease: 'power1.inOut' })
     .from('.price-band', { scaleX: 0, duration: 0.5 }, 0.75)
     .from('.pricing .row', { y: 50, opacity: 0, stagger: 0.12, duration: 0.4 }, 0.85)
 
