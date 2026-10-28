@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Chic Savage Beauty — spot 42 s</title>
+<!-- Spot 42 s (16:9 + 9:16) d'après la réf. « ALLDOMAINS » : typo cinétique mot à mot (Inter), pastilles flottantes,
+     carte 3D → pilule logo, panneau sombre + interface réelle du site, liste de pilules (Montserrat), orbite, logo.
+     Rendu image par image : window.build() puis window.render(t) (spot/render.mjs). -->
+<style>
+@font-face { font-family: IN; src: url(assets/fonts/inter-latin-500-normal.woff2); font-weight: 500; }
+@font-face { font-family: IN; src: url(assets/fonts/inter-latin-600-normal.woff2); font-weight: 600; }
+@font-face { font-family: IN; src: url(assets/fonts/inter-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: IN; src: url(assets/fonts/inter-latin-800-normal.woff2); font-weight: 800; }
+@font-face { font-family: MO; src: url(assets/fonts/montserrat-latin-500-normal.woff2); font-weight: 500; }
+@font-face { font-family: MO; src: url(assets/fonts/montserrat-latin-600-normal.woff2); font-weight: 600; }
+@font-face { font-family: MO; src: url(assets/fonts/montserrat-latin-700-normal.woff2); font-weight: 700; }
+@font-face { font-family: MO; src: url(assets/fonts/montserrat-latin-800-normal.woff2); font-weight: 800; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #fff; }
+body { font-family: IN, sans-serif; -webkit-font-smoothing: antialiased; }
+img { display: block; }
+#stage { position: fixed; inset: 0; overflow: hidden; }
+.layer { position: absolute; inset: 0; }
+.center { position: absolute; inset: 0; display: grid; place-items: center; }
+.p3d { perspective: 150vmin; }
+.bg-light { background: radial-gradient(62% 44% at 50% -8%, rgba(244, 190, 148, .66), transparent 72%), radial-gradient(72% 48% at 50% 110%, rgba(226, 168, 192, .55), transparent 72%), radial-gradient(38% 40% at 8% 72%, rgba(246, 214, 170, .28), transparent 70%), #fffdfb; }
+.bg-dark { background: radial-gradient(60% 50% at 72% 20%, rgba(214, 161, 76, .2), transparent 70%), radial-gradient(56% 52% at 16% 94%, rgba(170, 82, 52, .22), transparent 70%), #0c0806; }
+
+/* typo cinétique */
+.kt { max-width: 84vw; display: flex; flex-wrap: wrap; justify-content: center; gap: 0 .26em; font: 700 6vmin/1.18 IN; letter-spacing: -.025em; text-align: center; }
+.kt .w { display: inline-block; }
+.kt.sm { font-size: 5.2vmin; }
+.ichip { display: inline-flex; align-items: center; height: 1.15em; padding: .08em; margin: 0 .05em; border-radius: 99px; background: #fff; box-shadow: 0 .6vmin 2vmin rgba(120, 70, 40, .18), 0 0 0 1px rgba(0, 0, 0, .05); align-self: center; }
+.ichip img { height: 100%; aspect-ratio: 1.6; border-radius: 99px; object-fit: cover; }
+
+/* pastilles */
+.chip { position: absolute; display: flex; align-items: center; gap: 1vmin; padding: .7vmin 1.8vmin .7vmin .7vmin; border-radius: 99px; background: #fff; box-shadow: 0 1vmin 3vmin rgba(120, 70, 40, .13), 0 0 0 1px rgba(0, 0, 0, .04); font: 600 2.1vmin MO; color: #2b2420; white-space: nowrap; }
+.chip img { width: 3.8vmin; height: 3.8vmin; border-radius: 50%; object-fit: cover; }
+
+/* carte 3D */
+.card { position: relative; width: 54vmin; height: 32vmin; transform-style: preserve-3d; }
+.card-in { position: absolute; inset: 0; transform-style: preserve-3d; }
+.face { position: absolute; inset: 0; border-radius: 2.6vmin; overflow: hidden; backface-visibility: hidden; box-shadow: 0 3vmin 7vmin rgba(150, 80, 30, .3); }
+.front { padding: .8vmin; background: linear-gradient(135deg, #f6dfa4, #d6a14c 45%, #a8682c); }
+.front .rush { width: 100%; height: 100%; object-fit: cover; border-radius: 2vmin; }
+.tag { position: absolute; display: flex; align-items: center; gap: .8vmin; padding: .5vmin 1.4vmin .5vmin .5vmin; border-radius: 99px; background: rgba(255, 255, 255, .9); font: 700 1.8vmin MO; color: #2b2420; }
+.tag img { width: 3vmin; height: 3vmin; border-radius: 50%; object-fit: cover; }
+.front .tag { left: 2vmin; top: 2vmin; }
+.front .tag.b { left: auto; right: 2vmin; top: auto; bottom: 2vmin; padding: .7vmin 1.6vmin; background: rgba(17, 12, 9, .78); color: #f6dfa4; }
+.back { transform: rotateY(180deg); background: #110c09; display: flex; flex-direction: column; justify-content: space-between; }
+.strip { margin: 1.8vmin; padding: 1.2vmin 1.8vmin; border-radius: 1.4vmin; background: linear-gradient(90deg, #e2b25a, #b8743f); font: 700 2.2vmin MO; color: #fff; }
+.back-logo { display: flex; align-items: center; gap: 1.6vmin; margin: 0 2.2vmin 2.4vmin; font: 800 3.2vmin MO; color: #fff; }
+.back-logo img { width: 7vmin; height: 7vmin; border-radius: 50%; object-fit: cover; }
+.pill { display: flex; align-items: center; gap: 2vmin; padding: 1.6vmin 4.4vmin 1.6vmin 1.6vmin; border-radius: 99px; background: #0d0907; box-shadow: 0 2vmin 6vmin rgba(60, 30, 10, .35); font: 800 4.6vmin MO; color: #fff; white-space: nowrap; }
+.pill img { width: 10vmin; height: 10vmin; border-radius: 50%; object-fit: cover; }
+
+/* interface */
+#panel { border-radius: 7vmin 0 0 7vmin; }
+.browser { width: 62vw; border-radius: 1.6vmin; overflow: hidden; background: #1a1411; box-shadow: 0 4vmin 10vmin rgba(0, 0, 0, .55); }
+.bar { height: 4.2vmin; display: flex; align-items: center; gap: .8vmin; padding: 0 1.6vmin; background: #211915; }
+.bar i { width: 1.2vmin; height: 1.2vmin; border-radius: 50%; background: #5a4a40; }
+.bar span { margin-left: 2vmin; padding: .4vmin 2.4vmin; border-radius: 99px; background: #2d231e; color: #d8c8ba; font: 500 1.6vmin MO; }
+.browser img { width: 100%; }
+.phone { display: none; width: 54vw; padding: 1.6vmin; border-radius: 7vmin; background: #1b1512; box-shadow: 0 4vmin 10vmin rgba(0, 0, 0, .55); }
+.phone img { width: 100%; border-radius: 5.6vmin; }
+.bigin { width: 62vw; }
+.bigin small { display: block; margin: 0 0 1.4vmin 1vmin; font: 600 2.4vmin MO; color: #d9c3ad; }
+.field { height: 13vmin; display: flex; align-items: center; padding: 0 3.6vmin; border-radius: 2.6vmin; background: #120d0a; border: .35vmin solid #e0ac57; box-shadow: 0 0 0 .9vmin rgba(224, 172, 87, .14), 0 0 7vmin rgba(224, 172, 87, .45); font: 600 6vmin IN; color: #fff; letter-spacing: -.02em; }
+.caret { display: inline-block; width: .5vmin; height: 6.6vmin; margin-left: .5vmin; background: #f6dfa4; }
+.form { width: 48vw; display: grid; gap: 2vmin; padding: 4vmin; border-radius: 3vmin; background: #151009; border: 1px solid rgba(214, 161, 76, .28); box-shadow: 0 4vmin 10vmin rgba(0, 0, 0, .45); }
+.form h3 { font: 700 3.8vmin IN; color: #fff; letter-spacing: -.02em; }
+.ff { display: grid; gap: .8vmin; }
+.ff small { font: 600 1.8vmin MO; color: #bba892; }
+.ff div { position: relative; height: 7vmin; display: flex; align-items: center; padding: 0 2vmin; border-radius: 1.4vmin; background: #1f1813; border: 1px solid #3a2e26; font: 500 2.6vmin IN; color: #f3e8dd; }
+.ff div.on { border-color: #e0ac57; }
+.fbtns { display: flex; gap: 1.6vmin; margin-top: .6vmin; }
+.fbtn { position: relative; flex: 1; height: 7.4vmin; border-radius: 1.4vmin; display: grid; place-items: center; overflow: hidden; font: 700 2.4vmin MO; color: #fff; background: linear-gradient(90deg, #c9805a, #e6a585); }
+.fbtn.wa { background: #1fa855; flex: .7; }
+.fbtn .ok { position: absolute; inset: 0; display: grid; place-items: center; background: #1fa855; }
+#cursor { position: absolute; left: 0; top: 0; width: 5.4vmin; z-index: 60; filter: drop-shadow(0 .6vmin 1vmin rgba(0, 0, 0, .35)); }
+
+/* pilules */
+.plist { width: 54vw; display: grid; gap: 2.2vmin; transform-style: preserve-3d; }
+.pl { display: flex; align-items: center; gap: 2.4vmin; height: 10.5vmin; padding: 0 3.4vmin 0 1.6vmin; border-radius: 2.8vmin; background: rgba(255, 255, 255, .92); box-shadow: 0 1.4vmin 4vmin rgba(150, 90, 60, .12), 0 0 0 1px rgba(0, 0, 0, .03); font: 600 3.1vmin MO; color: #2b2420; }
+.pl img { width: 7.4vmin; height: 7.4vmin; border-radius: 1.8vmin; object-fit: cover; }
+.pl b { margin-left: auto; font: 700 2.7vmin MO; color: #b8743f; }
+.pl:nth-child(3n+1) { background: linear-gradient(90deg, #fff4e8, #fff 60%); }
+.pl:nth-child(3n+2) { background: linear-gradient(90deg, #fdf0f3, #fff 60%); }
+.pl:nth-child(3n) { background: linear-gradient(90deg, #f7f3ea, #fff 60%); }
+
+/* cartes résultats */
+.cards { display: flex; gap: 2.2vmin; align-items: flex-end; }
+.rc { width: 27vmin; display: grid; gap: 1.4vmin; justify-items: center; }
+.rc .ph { width: 27vmin; height: 37vmin; border-radius: 2.8vmin; overflow: hidden; background: #eee; box-shadow: 0 2vmin 5vmin rgba(120, 70, 40, .22); }
+.rc .ph img { width: 100%; height: 100%; object-fit: cover; }
+.rc span { display: flex; align-items: center; gap: .9vmin; font: 600 2.1vmin MO; color: #3b2f28; white-space: nowrap; }
+.rc span i { width: 1.4vmin; height: 1.4vmin; border-radius: 50%; background: #d6a14c; }
+
+/* orbite */
+.ring { position: absolute; left: 50%; top: 50%; border-radius: 50%; border: 1px solid rgba(246, 223, 164, .2); }
+.core { position: absolute; left: 50%; top: 50%; width: 30vmin; height: 30vmin; margin: -15vmin 0 0 -15vmin; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 .6vmin rgba(214, 161, 76, .4), 0 0 9vmin rgba(214, 161, 76, .4); }
+.core img { width: 100%; height: 100%; object-fit: cover; }
+.core-lbl { position: absolute; left: 0; right: 0; top: 50%; margin-top: 17.5vmin; text-align: center; font: 700 4.6vmin IN; color: #fff; letter-spacing: -.02em; }
+.po { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.planet { position: absolute; left: -5vmin; top: -5vmin; width: 10vmin; height: 10vmin; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 .4vmin rgba(255, 255, 255, .18), 0 1.4vmin 4vmin rgba(0, 0, 0, .4); }
+.planet img { width: 100%; height: 100%; object-fit: cover; }
+.planet.gold { background: radial-gradient(circle at 35% 30%, #f6dfa4, #d6a14c 55%, #8d5e1f); }
+.pl-lbl { position: absolute; left: -14vmin; width: 28vmin; top: 6vmin; text-align: center; font: 600 2.2vmin MO; color: #f1e6da; }
+
+/* site / whatsapp */
+#visit { display: grid; justify-items: center; gap: 3.4vmin; }
+.vrow { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 .3em; font: 700 6vmin IN; letter-spacing: -.025em; color: #fff; }
+.url { background: linear-gradient(90deg, #f6dfa4, #d6a14c 55%, #b8743f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.wa-chip { display: flex; align-items: center; gap: 1.4vmin; padding: 1.4vmin 3.2vmin 1.4vmin 1.6vmin; border-radius: 99px; background: #1fa855; font: 700 3.2vmin MO; color: #fff; box-shadow: 0 1.6vmin 5vmin rgba(31, 168, 85, .35); }
+.wa-chip svg { width: 5vmin; height: 5vmin; }
+
+/* logo */
+#logoL { background: #000; }
+#logoL img { width: 100%; height: 100%; object-fit: cover; -webkit-mask-image: radial-gradient(closest-side, #000 74%, transparent 100%); mask-image: radial-gradient(closest-side, #000 74%, transparent 100%); }
+.endl { position: absolute; left: 0; right: 0; bottom: 11%; display: grid; gap: 1.4vmin; justify-items: center; font: 600 2.6vmin MO; color: #d8cfc6; text-align: center; }
+.endl p:first-child { color: #f6dfa4; }
+
+/* 9:16 */
+.v .kt { max-width: 88vw; font-size: 7.4vmin; }
+.v .kt.sm { font-size: 6.6vmin; }
+.v .chip { font-size: 2.6vmin; }
+.v .chip img { width: 4.6vmin; height: 4.6vmin; }
+.v .card { width: 76vmin; height: 46vmin; }
+.v .pill { font-size: 4.4vmin; padding-right: 3.6vmin; }
+.v .pill img { width: 9vmin; height: 9vmin; }
+.v .browser { display: none; }
+.v .phone { display: block; }
+.v .bigin, .v .form { width: 88vw; }
+.v .field { font-size: 7vmin; height: 15vmin; }
+.v .ff div { height: 8.4vmin; font-size: 3.2vmin; }
+.v .ff small { font-size: 2.3vmin; }
+.v .fbtn { height: 9vmin; font-size: 3vmin; }
+.v .form h3 { font-size: 4.8vmin; }
+.v .plist { width: 90vw; }
+.v .pl { height: 12vmin; font-size: 3.6vmin; }
+.v .pl img { width: 8.6vmin; height: 8.6vmin; }
+.v .pl b { font-size: 3.2vmin; }
+.v .rc { width: 29vmin; }
+.v .rc .ph { width: 29vmin; height: 44vmin; }
+.v .rc.side { display: none; }
+.v .rc span { font-size: 2.5vmin; }
+.v .vrow { flex-direction: column; align-items: center; font-size: 7vmin; }
+.v #logoL img { height: auto; position: absolute; top: 50%; margin-top: -31.76vw; }
+.v .endl { bottom: 27%; font-size: 3.2vmin; }
+.v .core-lbl { font-size: 6vmin; }
+.v .pl-lbl { font-size: 2.8vmin; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="layer bg-light" id="bgL"></div>
+
+  <div class="center"><div class="kt" id="k1"></div></div>
+  <div class="center"><div class="kt" id="k2"></div></div>
+
+  <div class="layer" id="chips"></div>
+  <div class="center p3d"><div class="card" id="card"><div class="card-in">
+    <div class="face front"><img class="rush" id="r-smile" alt="" /><span class="tag"><img src="assets/img/logo-cs.webp" alt="" />Chic Savage</span><span class="tag b">Votre sourire ✦</span></div>
+    <div class="face back"><div class="strip">Découvrez</div><div class="back-logo"><img src="assets/img/logo-cs.webp" alt="" />CHIC SAVAGE BEAUTY</div></div>
+  </div></div></div>
+  <div class="center"><div class="pill" id="pill"><img src="assets/img/logo-cs.webp" alt="" />CHIC SAVAGE BEAUTY</div></div>
+  <div class="center"><div class="kt" id="k6"></div></div>
+
+  <div class="layer bg-dark" id="panel"></div>
+  <div class="center p3d" id="winC">
+    <div class="browser" id="win-h"><div class="bar"><i></i><i></i><i></i><span>chic-savage.vercel.app</span></div><img src="assets/img/site-h.jpg" alt="" /></div>
+    <div class="phone" id="win-v"><img src="assets/img/site-v.jpg" alt="" /></div>
+  </div>
+  <div class="center p3d"><div class="bigin" id="bigin"><small>Prénom &amp; nom</small><div class="field"><span id="typed"></span><i class="caret" id="caret"></i></div></div></div>
+  <div class="center"><div class="form" id="form">
+    <h3>Réservez votre soin</h3>
+    <div class="ff"><small>Prénom &amp; nom</small><div class="on">Marie Dupont</div></div>
+    <div class="ff"><small>Soin souhaité</small><div id="fsoin"><span id="vsoin">Blanchiment — Soin Express (75 €)</span></div></div>
+    <div class="ff"><small>Date &amp; créneau</small><div id="fdate"><span id="vdate">Mercredi 4 novembre · Matin</span></div></div>
+    <div class="fbtns"><div class="fbtn" id="send"><span>Envoyer ma demande →</span><span class="ok" id="ok">✓ Demande envoyée</span></div><div class="fbtn wa">WhatsApp</div></div>
+  </div></div>
+
+  <div class="center"><div class="kt" id="k8"></div></div>
+  <div class="center"><div class="kt" id="k9"></div></div>
+  <div class="center p3d"><div class="plist" id="plist"></div></div>
+  <div class="center"><div class="kt sm" id="k11a"></div></div>
+  <div class="center"><div class="kt sm" id="k11b"></div></div>
+  <div class="center"><div class="kt sm" id="k11c"></div></div>
+  <div class="center"><div class="cards" id="cards"></div></div>
+  <div class="center"><div class="kt" id="k13"></div></div>
+
+  <div class="layer bg-dark" id="bgD"></div>
+  <div class="layer" id="orbit"></div>
+  <div class="center"><div class="kt" id="k15"></div></div>
+  <div class="center"><div id="visit">
+    <div class="vrow"><span id="vw">Rendez-vous sur</span><b class="url" id="url">chic-savage.vercel.app</b></div>
+    <div class="wa-chip" id="wa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 8.3c.2-.4.5-.4.8-.4h.5c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .5-.1.7l-.5.6c.6 1.1 1.5 2 2.6 2.6l.6-.5c.2-.2.5-.2.7-.1l1.6.7c.3.1.4.3.4.5v.5c0 .3 0 .6-.4.8-.6.4-1.4.6-2.2.4-2.4-.6-4.6-2.8-5.2-5.2-.2-.8 0-1.6.4-2.2Z" fill="#fff"/></svg>WhatsApp · 0696 31 73 56</div>
+  </div></div>
+
+  <div class="layer" id="logoL"><img id="r-logo" alt="" /></div>
+  <div class="endl" id="endl"><p>39 rue Pierre Semard · Fort-de-France · Martinique</p><p>0696 31 73 56 · @chicsavagebeauty · chic-savage.vercel.app</p></div>
+
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M4 2.5 19.5 13l-7 1.3 4 7.4-2.9 1.5-4-7.5L4.5 21Z" fill="#fff" stroke="#151009" stroke-width="1.4" stroke-linejoin="round"/></svg>
+</div>
+
+<script src="../node_modules/gsap/dist/gsap.min.js"></script>
+<script src="assets/voice/words.js"></script>
+<script>
+const $ = (s, el = document) => el.querySelector(s)
+const $$ = (s, el = document) => [...el.querySelectorAll(s)]
+const IMG = (f) => `assets/img/${f}`
+const V = innerHeight > innerWidth
+document.body.classList.toggle('v', V)
+const W = innerWidth, H = innerHeight
+const VO = [0.20, 2.78, 5.20, 9.52, 13.62, 18.35, 21.15, 25.05, 28.42, 31.35, 34.20, 37.75] // même table que mix.mjs
+const INK = ['#2a1f1a', '#9c5f33', '#d9a441'], GOLD_INK = ['#d9a441', '#9c5f33', '#2a1f1a'], WHITE = ['#ffffff', '#8f8780']
+const tl = gsap.timeline({ paused: true })
+const DYN = [], SEQ = []
+
+// mots affichés ↔ mots prononcés (alignés par nombre de lettres : robuste à « 75 euros », « Fort-de-France »)
+const AL = /[\p{L}\p{N}]/gu, nal = (s) => (s.match(AL) || []).length
+function toks(i) {
+  const tw = WORDS[i].words; let c = 0
+  const st = tw.map((w) => { const s = c; c += nal(w[0]); return s })
+  let acc = 0
+  return WORDS[i].text.split(/\s+/).filter(nal).map((tok) => {
+    const idx = acc; acc += nal(tok)
+    let k = 0; while (k + 1 < tw.length && st[k + 1] <= idx) k++
+    return { txt: tok, t: VO[i] + tw[k][1] }
+  })
+}
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
+function grad(stops, f) {
+  const p = f * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(p)), a = hex(stops[i]), b = hex(stops[i + 1])
+  return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * (p - i))).join(',')})`
+}
+const pos = (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height } }
+
+// ligne cinétique : chaque mot sort du flou au moment où la voix le prononce
+function kinetic(el, i, from, to, { t1, stops = INK, cap = false, chips = {} } = {}) {
+  const ws = toks(i).slice(from, to)
+  el.innerHTML = ws.map((w, k) => (chips[k] ? `<span class="ichip" data-k="${k}"><img src="${IMG(chips[k])}" alt="" /></span>` : '') +
+    `<span class="w">${k === 0 && cap ? w.txt[0].toUpperCase() + w.txt.slice(1) : w.txt}</span>`).join(' ')
+  const spans = $$('.w', el), fs = parseFloat(getComputedStyle(el).fontSize)
+  spans.forEach((s, k) => {
+    s.style.color = grad(stops, spans.length > 1 ? k / (spans.length - 1) : 0)
+    gsap.set(s, { opacity: 0, y: fs * .42, scale: .94, filter: 'blur(10px)' })
+    tl.to(s, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: .42, ease: 'power3.out' }, ws[k].t - .05)
+  })
+  $$('.ichip', el).forEach((c) => {
+    c._p = pos(c)
+    const t = ws[+c.dataset.k].t - .22
+    gsap.set(c, { opacity: 0, scale: .2, x: W * .1, y: H * .08 })
+    tl.to(c, { opacity: 1, duration: .2, ease: 'power2.out' }, t)
+    tl.to(c, { scale: 1, x: 0, y: 0, duration: .45, ease: 'back.out(1.8)' }, t)
+  })
+  if (t1) tl.to(el, { opacity: 0, y: -H * .02, filter: 'blur(10px)', duration: .26, ease: 'power2.in' }, t1 - .26)
+  return ws
+}
+const seq = (img, dir, n, t0, t1, f0 = 0, fps = 30) => { SEQ.push({ img, dir, n, t0, t1, f0, fps }); img.src = `assets/seq/${dir}/${String(f0).padStart(3, '0')}.jpg` }
+const cursor = $('#cursor')
+
+window.build = () => {
+  gsap.set(cursor, { opacity: 0, x: W * .8, y: H * .9 })
+
+  // 1-2 · « Prendre soin de soi… » / « Ça devrait être aussi simple qu'un sourire »
+  kinetic($('#k1'), 0, 0, 99, { t1: 2.74 })
+  kinetic($('#k2'), 1, 0, 99, { t1: 5.08 })
+
+  // 3 · pastilles flottantes + carte dorée (vrai sourire) qui tourne en 3D
+  const CH = [['Blanchiment', 'thumb-1.webp'], ['Strass Swarovski', 'teeth-smile.png'], ['Lipocavitation', 'serv-3.webp'], ['Radiofréquence', 'serv-4.webp'],
+    ['Séance découverte', 'lipo.jpg'], ['Design or', 'teeth-close.png'], ['Soin Express', 'pricing.webp'], ['Forfait 10 séances', 'gal-2.webp']]
+  const P = V ? [[8, 22], [52, 16], [10, 30], [58, 27], [8, 70], [58, 72], [30, 10], [28, 82]]
+    : [[11, 19], [67, 15], [6, 47], [75, 43], [13, 75], [64, 79], [38, 9], [41, 88]]
+  const chips = CH.map(([l, f], i) => {
+    const c = document.createElement('div'); c.className = 'chip'
+    c.innerHTML = `<img src="${IMG(f)}" alt="" />${l}`; c.style.left = P[i][0] + '%'; c.style.top = P[i][1] + '%'
+    $('#chips').appendChild(c); return c
+  })
+  const l2 = toks(2), tout = l2[3].t
+  chips.forEach((c, i) => {
+    const p = pos(c), dx = W / 2 - p.x, dy = H / 2 - p.y
+    gsap.set(c, { opacity: 0, scale: .5 })
+    tl.to(c, { opacity: 1, duration: .3 }, 5.12 + i * .11)
+    tl.to(c, { scale: 1, duration: .5, ease: 'back.out(2.2)' }, 5.12 + i * .11)
+    tl.to(c, { x: (i % 2 ? -1 : 1) * W * .012, y: (i % 3 - 1) * H * .02, duration: tout - 5.12, ease: 'sine.inOut' }, 5.12)
+    tl.to(c, { x: dx * .92, y: dy * .92, scale: .35, opacity: 0, duration: .55, ease: 'power2.in' }, tout + i * .03)
+  })
+  ;[0, 1, 2].forEach((k) => tl.to(chips[k], { scale: 1.2, duration: .16, yoyo: true, repeat: 1, ease: 'power2.out' }, l2[k].t))
+  const card = $('#card'), cin = $('#card .card-in'), pill = $('#pill')
+  seq($('#r-smile'), 'smile', 168, 5.45, 10.4)
+  gsap.set(card, { opacity: 0, y: H * .62, rotationX: 48, rotationZ: -12 })
+  tl.to(card, { opacity: 1, duration: .25 }, 5.5)
+  tl.to(card, { y: 0, rotationX: 8, rotationY: -16, rotationZ: -6, duration: 1.1, ease: 'power3.out' }, 5.5)
+  tl.to(card, { rotationX: 4, rotationY: 14, rotationZ: 3, duration: 2.8, ease: 'sine.inOut' }, 6.6)
+  tl.to(card, { scale: 1.08, duration: .5, ease: 'power2.out' }, tout + .2)
+  // 4 · la carte se retourne (« Découvrez »), se réduit en pilule logo… 5 · qui traverse l'objectif
+  tl.to(cin, { rotationY: 180, duration: .62, ease: 'power2.inOut' }, 9.45)
+  tl.to(card, { rotationX: 0, rotationY: 0, rotationZ: 0, scale: 1, duration: .62, ease: 'power2.inOut' }, 9.45)
+  tl.to(card, { scale: .5, opacity: 0, duration: .34, ease: 'power2.in' }, 10.18)
+  gsap.set(pill, { opacity: 0, scale: .78 })
+  tl.to(pill, { opacity: 1, duration: .22 }, 10.3)
+  tl.to(pill, { scale: 1, duration: .45, ease: 'power3.out' }, 10.3)
+  tl.to(pill, { scale: 3.8, filter: 'blur(16px)', duration: .5, ease: 'power2.in' }, 10.95)
+  tl.to(pill, { opacity: 0, duration: .22, ease: 'power1.in' }, 11.23)
+  // 6 · « Votre éclat, révélé. »
+  kinetic($('#k6'), 3, 4, 99, { t1: 13.42, stops: GOLD_INK, cap: true })
+
+  // 7 · panneau sombre + vrai site, saisie dans le champ doré, envoi du formulaire
+  const panel = $('#panel'), win = V ? $('#win-v') : $('#win-h'), bigin = $('#bigin'), form = $('#form')
+  const sendP = pos($('#send'))
+  gsap.set(panel, { xPercent: 100 })
+  tl.to(panel, { xPercent: 0, borderRadius: 0, duration: .58, ease: 'power3.inOut' }, 13.38)
+  gsap.set(win, { opacity: 0, x: W * .26, rotationY: -28, rotationX: 10, scale: .8, transformOrigin: '50% 50%' })
+  tl.to(win, { opacity: 1, duration: .3 }, 13.72)
+  tl.to(win, { x: 0, rotationY: -12, rotationX: 7, scale: .9, duration: .8, ease: 'power3.out' }, 13.72)
+  tl.to(win, { rotationY: 0, rotationX: 0, scale: 1, duration: .5, ease: 'power2.inOut' }, 14.5)
+  tl.set(win, { transformOrigin: V ? '44% 63%' : '87% 58%' }, 15.01) // zoom vers « Prendre rendez-vous »
+  tl.to(win, { scale: 2.4, filter: 'blur(12px)', duration: .45, ease: 'power2.in' }, 15.02)
+  tl.to(win, { opacity: 0, duration: .2 }, 15.27)
+  gsap.set(bigin, { opacity: 0, scale: .8, rotationX: 24, rotationZ: -3, y: H * .05 })
+  tl.to(bigin, { opacity: 1, duration: .25 }, 15.15)
+  tl.to(bigin, { scale: 1, rotationX: 12, rotationZ: -2, y: 0, duration: .55, ease: 'power3.out' }, 15.15)
+  tl.to(bigin, { scale: .5, y: -H * .2, rotationX: 0, rotationZ: 0, opacity: 0, duration: .4, ease: 'power2.in' }, 16.38)
+  const typed = $('#typed'), caret = $('#caret'), NAME = 'Marie Dupont'
+  DYN.push((t) => {
+    typed.textContent = NAME.slice(0, Math.max(0, Math.min(NAME.length, Math.floor((t - 15.48) / .072))))
+    caret.style.opacity = t > 15.45 && t < 16.35 ? 1 : Math.floor(t * 2.6) % 2 ? 0 : 1
+  })
+  gsap.set(form, { opacity: 0, scale: .9, y: H * .03 })
+  tl.to(form, { opacity: 1, duration: .25 }, 16.45)
+  tl.to(form, { scale: 1, y: 0, duration: .45, ease: 'power3.out' }, 16.45)
+  gsap.set(['#vsoin', '#vdate'], { opacity: 0, x: -12 })
+  tl.to('#vsoin', { opacity: 1, x: 0, duration: .25 }, 16.78)
+  tl.set('#fsoin', { className: 'on' }, 16.78)
+  tl.to('#vdate', { opacity: 1, x: 0, duration: .25 }, 16.98)
+  tl.set('#fdate', { className: 'on' }, 16.98)
+  tl.fromTo(cursor, { opacity: 0, x: W * .82, y: H * .92 }, { opacity: 1, x: sendP.x - W * .01, y: sendP.y - H * .01, duration: .55, ease: 'power2.inOut', immediateRender: false }, 16.85)
+  tl.to(cursor, { scale: .8, duration: .08, yoyo: true, repeat: 1 }, 17.42)
+  tl.to('#send', { scale: .95, duration: .08, yoyo: true, repeat: 1 }, 17.42)
+  gsap.set('#ok', { opacity: 0 })
+  tl.to('#ok', { opacity: 1, duration: .18 }, 17.56)
+  tl.to([form, cursor], { opacity: 0, scale: .92, duration: .3, ease: 'power2.in' }, 18.0)
+  tl.to(panel, { opacity: 0, duration: .32 }, 18.02)
+
+  // 8-9 · « Des soins sur mesure, » / « pensés pour chacune. »
+  kinetic($('#k8'), 5, 0, 4, { t1: 19.7 })
+  kinetic($('#k9'), 5, 4, 99, { t1: 21.1, cap: true, stops: ['#2a1f1a', '#2a1f1a', '#c98a3f'] })
+
+  // 10 · liste de pilules en perspective + curseur
+  const PL = [['thumb-1.webp', 'Blanchiment dentaire', 'dès 75 €'], ['teeth-smile.png', 'Strass Swarovski', 'dès 15 €'], ['teeth-close.png', 'Design dentaire', '45 €'],
+    ['serv-3.webp', 'Lipocavitation', 'dès 70 €'], ['serv-4.webp', 'Radiofréquence', 'peau raffermie'], ['lipo.jpg', 'Séance découverte', '50 €'], ['gal-2.webp', 'Forfaits 10 séances', 'dès 600 €']]
+  const plist = $('#plist')
+  plist.innerHTML = PL.map(([f, l, p]) => `<div class="pl"><img src="${IMG(f)}" alt="" />${l}<b>${p}</b></div>`).join('')
+  const pills = $$('.pl', plist), pp = pills.map(pos)
+  const y0 = H * (V ? .3 : .26), y1 = -H * (V ? .02 : .1), yAt = (t) => y0 + (y1 - y0) * Math.max(0, Math.min(1, (t - 21.1) / 3.9))
+  gsap.set(plist, { rotationX: 18, y: y0 })
+  tl.to(plist, { y: y1, duration: 3.9, ease: 'none' }, 21.1)
+  pills.forEach((p, i) => {
+    gsap.set(p, { opacity: 0, y: H * .05, scale: .95 })
+    tl.to(p, { opacity: 1, y: 0, scale: 1, duration: .45, ease: 'power3.out' }, 21.15 + i * .2)
+  })
+  const l6 = toks(6)
+  ;[[0, l6[0].t + .35], [5, l6[4].t]].forEach(([k, t]) => {
+    tl.to(cursor, { opacity: 1, scale: 1, x: pp[k].x + pp[k].w * .18, y: pp[k].y + yAt(t) - H * .005, duration: .5, ease: 'power2.inOut' }, t - .5)
+    tl.to(pills[k], { scale: 1.05, boxShadow: '0 0 0 .5vmin rgba(214,161,76,.55), 0 2vmin 5vmin rgba(150,90,60,.25)', duration: .25 }, t)
+    tl.to(pills[k], { scale: 1, boxShadow: '0 1.4vmin 4vmin rgba(150,90,60,.12), 0 0 0 1px rgba(0,0,0,.03)', duration: .3 }, t + 1.05)
+  })
+  gsap.set(cursor, { scale: 1 })
+  tl.to([plist, cursor], { opacity: 0, filter: 'blur(8px)', duration: .3, ease: 'power2.in' }, 24.72)
+  tl.set(cursor, { filter: 'blur(0px)' }, 25.1)
+
+  // 11 · « Un seul institut, » / « pour votre [sourire] » / « et votre [silhouette] »
+  kinetic($('#k11a'), 7, 0, 3, { t1: 26.32, cap: true })
+  kinetic($('#k11b'), 7, 3, 6, { t1: 27.12, chips: { 2: 'teeth-smile.png' } })
+  kinetic($('#k11c'), 7, 6, 99, { t1: 28.42, chips: { 2: 'serv-3.webp' } })
+  ;[['#k11b', 26.55], ['#k11c', 27.24]].forEach(([s, t]) => {
+    const c = $('.ichip', $(s))._p
+    tl.to(cursor, { opacity: 1, x: c.x + W * .1, y: c.y + H * .08, duration: .01 }, t - .25)
+    tl.to(cursor, { x: c.x + c.w * .2, y: c.y + c.h * .2, duration: .45, ease: 'back.out(1.6)' }, t - .22)
+    tl.to(cursor, { opacity: 0, duration: .2 }, t + .5)
+  })
+
+  // 12 · vraies réalisations en cartes ; la carte vidéo radiofréquence s'avance
+  const CA = [['teeth-smile.png', 'Strass & design'], ['seances.jpg', 'Lipo · 5 séances'], [null, 'Radiofréquence'], ['teeth-close.png', 'Design or'], ['lipo.jpg', 'Silhouette']]
+  $('#cards').innerHTML = CA.map(([f, l], i) => `<div class="rc${i === 0 || i === 4 ? ' side' : ''}"><div class="ph"><img ${f ? `src="${IMG(f)}"` : 'id="r-rf"'} alt="" /></div><span><i></i>${l}</span></div>`).join('')
+  seq($('#r-rf'), 'rf', 100, 28.4, 31.4)
+  const rcs = $$('.rc'), mid = rcs[2]
+  rcs.forEach((c, i) => {
+    gsap.set(c, { opacity: 0, y: H * .25, rotationZ: (i - 2) * 5 })
+    tl.to(c, { opacity: 1, duration: .25 }, 28.45 + i * .09)
+    tl.to(c, { y: 0, rotationZ: 0, duration: .6, ease: 'power3.out' }, 28.45 + i * .09)
+    if (c !== mid) tl.to(c, { opacity: 0, x: (i < 2 ? -1 : 1) * W * .06, duration: .45, ease: 'power2.in' }, 30.35)
+  })
+  tl.to(mid, { scale: V ? 1.5 : 1.38, duration: .8, ease: 'power2.inOut' }, 30.35)
+  tl.to(mid, { opacity: 0, scale: V ? 1.7 : 1.55, filter: 'blur(10px)', duration: .3, ease: 'power2.in' }, 31.05)
+
+  // 13 · « Au cœur de » puis 14 · orbite autour de Fort-de-France (vraie île en vidéo)
+  kinetic($('#k13'), 9, 0, 3, { t1: 31.98, cap: true })
+  const bgD = $('#bgD'), orbit = $('#orbit'), R = Math.min(W, H)
+  gsap.set(bgD, { clipPath: 'circle(0% at 50% 50%)' })
+  tl.to(bgD, { clipPath: 'circle(75% at 50% 50%)', duration: .55, ease: 'power2.inOut' }, 31.8)
+  orbit.innerHTML = [.46, .72, .98].map((d) => `<div class="ring" style="width:${d * R}px;height:${d * R}px;margin:${-d * R / 2}px 0 0 ${-d * R / 2}px"></div>`).join('') +
+    `<div class="core"><img id="r-island" alt="" /></div><div class="core-lbl" id="corel">Fort-de-France</div>` +
+    [['Martinique', null, .36], ['Blanchiment', 'thumb-1.webp', .36], ['Strass', 'teeth-close.png', .49], ['Silhouette', 'serv-3.webp', .49]]
+      .map(([l, f, r], i) => `<div class="po" data-r="${r}" data-a="${[-.6, 2.5, 1.0, 4.1][i]}"><div class="planet${f ? '' : ' gold'}">${f ? `<img src="${IMG(f)}" alt="" />` : ''}</div><div class="pl-lbl">${l}</div></div>`).join('')
+  seq($('#r-island'), 'island', 79, 31.95, 34.3)
+  const pos4 = $$('.po', orbit).map((el) => ({ el, r: +el.dataset.r * R, a0: +el.dataset.a }))
+  DYN.push((t) => pos4.forEach((p, i) => { const a = p.a0 + (t - 32) * (i < 2 ? .42 : -.3); p.el.style.transform = `translate(${Math.cos(a) * p.r}px, ${Math.sin(a) * p.r * .9}px)` }))
+  gsap.set(orbit, { opacity: 0 })
+  tl.to(orbit, { opacity: 1, duration: .2 }, 31.92)
+  gsap.set('.ring', { scale: .55, opacity: 0 })
+  tl.to('.ring', { scale: 1, opacity: 1, duration: .7, stagger: .08, ease: 'power3.out' }, 31.95)
+  gsap.set('.core', { scale: .3, opacity: 0 })
+  tl.to('.core', { opacity: 1, duration: .25 }, 32.0)
+  tl.to('.core', { scale: 1, duration: .6, ease: 'back.out(1.5)' }, 32.0)
+  gsap.set('#corel', { opacity: 0, y: H * .02, filter: 'blur(8px)' })
+  tl.to('#corel', { opacity: 1, y: 0, filter: 'blur(0px)', duration: .45, ease: 'power3.out' }, 32.18)
+  $$('.planet, .pl-lbl', orbit).forEach((p, i) => { gsap.set(p, { opacity: 0, scale: .3 }); tl.to(p, { opacity: 1, scale: 1, duration: .45, ease: 'back.out(1.7)' }, 32.35 + Math.floor(i / 2) * .12) })
+  const mart = $('.planet', $$('.po', orbit)[0])
+  tl.to(mart, { scale: 1.3, boxShadow: '0 0 0 .5vmin rgba(246,223,164,.6), 0 0 6vmin rgba(214,161,76,.7)', duration: .3 }, toks(9)[5].t)
+  tl.to(orbit, { scale: 1.12, opacity: 0, duration: .35, ease: 'power2.in' }, 33.86)
+
+  // 15 · « Réservez dès aujourd'hui, » 16 · site + WhatsApp
+  kinetic($('#k15'), 10, 0, 3, { t1: 35.7, stops: WHITE })
+  gsap.set('#visit', { opacity: 0 })
+  tl.set('#visit', { opacity: 1 }, 35.68)
+  gsap.set('#vw', { opacity: 0, y: H * .02 })
+  tl.to('#vw', { opacity: 1, y: 0, duration: .35, ease: 'power3.out' }, 35.72)
+  gsap.set('#url', { opacity: 0, x: W * .14, y: -H * .16, scale: .6, filter: 'blur(10px)' })
+  tl.to('#url', { opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)', duration: .62, ease: 'power3.out' }, 35.86)
+  const waT = toks(10)[4].t
+  gsap.set('#wa', { opacity: 0, scale: .6 })
+  tl.to('#wa', { opacity: 1, duration: .2 }, waT)
+  tl.to('#wa', { scale: 1, duration: .45, ease: 'back.out(2)' }, waT)
+  tl.to('#visit', { opacity: 0, filter: 'blur(10px)', duration: .3, ease: 'power2.in' }, 36.95)
+
+  // 17 · le logo or se reforme (vidéo du client, à rebours) · 18 · signature
+  const logoL = $('#logoL'), logo = $('#r-logo')
+  seq(logo, V ? 'logo-v' : 'logo-h', 119, 37.2, 43, 20, 98 / 2.3)
+  gsap.set(logoL, { opacity: 0 })
+  tl.to(logoL, { opacity: 1, duration: .3 }, 37.08)
+  tl.to(logo, { scale: V ? .84 : .62, y: -H * (V ? .06 : .085), duration: .85, ease: 'power3.inOut' }, 39.55)
+  gsap.set('#endl p', { opacity: 0, y: H * .02 })
+  tl.to('#endl p', { opacity: 1, y: 0, stagger: .16, duration: .5, ease: 'power3.out' }, 40.05)
+  tl.to({}, { duration: .01 }, 42)
+}
+
+window.render = async (t) => {
+  tl.seek(t, false)
+  DYN.forEach((f) => f(t))
+  const ps = []
+  for (const s of SEQ) {
+    if (t < s.t0 - .3 || t > s.t1 + .3) continue
+    const f = Math.max(0, Math.min(s.n - 1, Math.floor(s.f0 + Math.max(0, t - s.t0) * s.fps)))
+    const src = `assets/seq/${s.dir}/${String(f).padStart(3, '0')}.jpg`
+    if (s.cur !== src) { s.cur = src; s.img.src = src; ps.push(s.img.decode().catch(() => {})) }
+  }
+  await Promise.all(ps)
+}
+</script>
+</body>
+</html>

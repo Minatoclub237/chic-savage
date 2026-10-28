@@ -2,3 +2,9 @@ node_modules
 dist
 _raw
 _client
+spot/out
+spot/assets/seq
+spot/assets/sound
+spot/assets/img
+spot/assets/fonts
+spot/assets/voice/*.mp3
